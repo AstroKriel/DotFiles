@@ -87,12 +87,12 @@ When code, comments, and docstrings use mathematical notation, keep naming align
 | Tensors | upper-case with indices: `<Tensor>_<index><index>` |
 | Code names | preserve the same distinction in variable names where practical |
 
-When a variable name describes an operation applied to a quantity, separate the action from the quantity with an underscore.
+Use underscores to separate all components of a physics symbol name, mirroring LaTeX subscript notation. This applies to subscript labels, operators, and qualifiers equally.
 
 | Rule | |
 |---|---|
-| Prefer | `<action>_<quantity>` |
-| Avoid | `<action><quantity>` |
+| Prefer | `<sym>_<label>`, `<op>_<qty>`, `<sym>_<label>_<qualifier>` |
+| Avoid | `<sym><label>`, `<op><qty>`, `<sym><label><qualifier>` |
 
 Apply consistently to variable names, comments, docstrings, and user-facing labels; preserve established public labels when they exist.
 
