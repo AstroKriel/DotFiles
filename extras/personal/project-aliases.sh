@@ -39,11 +39,13 @@ create_alias_if_present() {
     alias "$alias_name=cd \"\$$var_name\""
 }
 
-create_alias_if_present --var DASGARD --alias dasgard --dir "$HOME/Projects/Asgard"
-create_alias_if_present --var DQUOKKA --alias dquokka --dir "$HOME/Projects/quokka"
-create_alias_if_present --var DNOTES --alias dnotes --dir "$HOME/Documents/ProjectNotes"
-create_alias_if_present --var DBLOGS --alias dblogs --dir "$HOME/Documents/MyBlogs"
+create_alias_if_present --var DDOC --alias ddoc --dir "$HOME/Documents"
+create_alias_if_present --var DSYS --alias dsys --dir "$DDOC/SetupFramework"
+create_alias_if_present --var DNOTES --alias dnotes --dir "$DDOC/ProjectNotes"
 
-create_alias_if_present --var DSYS --alias dsys --dir "$HOME/Documents/SetupFramework"
+create_alias_if_present --var DPROJ --alias dproj --dir "$DHOME/Projects"
+create_alias_if_present --var DDOT --alias ddot --dir "$DPROJ/DotFiles"
+create_alias_if_present --var DASGARD --alias dasgard --dir "$DPROJ/Asgard"
+create_alias_if_present --var DQUOKKA --alias dquokka --dir "$DPROJ/quokka"
 
 ## .

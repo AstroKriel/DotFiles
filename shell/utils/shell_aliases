@@ -21,13 +21,7 @@ alias ktmux='tmux kill-server'
 export DHOME="$HOME"
 alias dhome='cd "$DHOME"'
 
-export DDOT="$DHOME/Projects/DotFiles"
-alias ddot='cd "$DDOT"'
-
 export DDWN="$DHOME/Downloads"
 alias ddwn='cd "$DDWN"'
-
-export DPROJ="$DHOME/Projects"
-alias dproj='cd "$DPROJ"'
 
 ## .
