@@ -42,7 +42,7 @@ create_alias_if_present() {
 create_alias_if_present --var DDOC --alias ddoc --dir "$HOME/Documents"
 create_alias_if_present --var DSYS --alias dsys --dir "$DDOC/SetupFramework"
 create_alias_if_present --var DNOTES --alias dnotes --dir "$DDOC/ProjectNotes"
-create_alias_if_present --var DBITES --alias dbites --dir "$DDOC/BiteSizeDevTips"
+create_alias_if_present --var DBITES --alias dbites --dir "$DDOC/BiteSizePython"
 
 create_alias_if_present --var DPROJ --alias dproj --dir "$DHOME/Projects"
 create_alias_if_present --var DDOT --alias ddot --dir "$DPROJ/DotFiles"
