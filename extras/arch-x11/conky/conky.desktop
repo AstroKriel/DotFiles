@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Conky System Monitor
+Comment=Lightweight system monitor with btop-inspired display
+Exec=conky --config="$HOME/.config/conky/conky.conf"
+Icon=utilities-system-monitor
+Terminal=false
+Hidden=false
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5

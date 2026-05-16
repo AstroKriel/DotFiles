@@ -1,0 +1,4 @@
+#!/bin/sh
+# Outputs battery charge percentage (0-100) from sysfs.
+# Used by ${execgraph} for the battery history graph and ${execpi} for the % readout.
+cat /sys/class/power_supply/BAT1/capacity

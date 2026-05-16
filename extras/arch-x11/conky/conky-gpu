@@ -1,0 +1,5 @@
+#!/bin/sh
+# Outputs GPU busy percentage (0-100) from sysfs.
+# Dynamically finds the first amdgpu-driven card rather than hardcoding card1.
+card=$(ls /sys/class/drm/ | grep -m1 '^card[0-9]*$')
+cat /sys/class/drm/"$card"/device/gpu_busy_percent

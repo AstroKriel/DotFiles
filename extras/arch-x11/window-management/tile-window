@@ -1,0 +1,78 @@
+#!/bin/bash
+WIDTH_RATIO=75
+DIRECTION=$1
+
+if [[ $DIRECTION != "left" && $DIRECTION != "right" ]]; then
+  echo "Usage: tile-window <left|right>" >&2
+  exit 1
+fi
+
+ACTIVE_WINDOW_ID=$(xdotool getactivewindow)
+
+xdotool windowstate --remove FULLSCREEN "$ACTIVE_WINDOW_ID"
+xdotool windowstate --remove MAXIMIZED_VERT "$ACTIVE_WINDOW_ID"
+xdotool windowstate --remove MAXIMIZED_HORZ "$ACTIVE_WINDOW_ID"
+
+sleep 0.05
+
+eval $(xdotool getwindowgeometry --shell "$ACTIVE_WINDOW_ID")
+
+while IFS= read -r line; do
+  if [[ $line =~ ([0-9]+)x([0-9]+)\+([0-9]+)\+([0-9]+) ]]; then
+    MONITOR_WIDTH=${BASH_REMATCH[1]}
+    MONITOR_HEIGHT=${BASH_REMATCH[2]}
+    MONITOR_LEFT_X=${BASH_REMATCH[3]}
+    MONITOR_TOP_Y=${BASH_REMATCH[4]}
+    if (( X + WIDTH / 2 >= MONITOR_LEFT_X && X + WIDTH / 2 < MONITOR_LEFT_X + MONITOR_WIDTH &&
+          Y + HEIGHT / 2 >= MONITOR_TOP_Y && Y + HEIGHT / 2 < MONITOR_TOP_Y + MONITOR_HEIGHT )); then
+      break
+    fi
+  fi
+done < <(xrandr | grep " connected")
+
+MONITOR_RIGHT=$(( MONITOR_LEFT_X + MONITOR_WIDTH ))
+STRUT_TOP=0
+STRUT_BOTTOM=0
+
+while read -r win_id; do
+  strut=$(xprop -id "$win_id" _NET_WM_STRUT_PARTIAL 2>/dev/null)
+  if [[ $strut =~ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+) ]]; then
+    strut_top=${BASH_REMATCH[3]}
+    strut_bottom=${BASH_REMATCH[4]}
+    strut_top_start=${BASH_REMATCH[9]}
+    strut_top_end=${BASH_REMATCH[10]}
+    strut_bottom_start=${BASH_REMATCH[11]}
+    strut_bottom_end=${BASH_REMATCH[12]}
+    if (( strut_top > 0 && strut_top_start < MONITOR_RIGHT && strut_top_end >= MONITOR_LEFT_X )); then
+      (( strut_top > STRUT_TOP )) && STRUT_TOP=$(( strut_top - MONITOR_TOP_Y ))
+    fi
+    if (( strut_bottom > 0 && strut_bottom_start < MONITOR_RIGHT && strut_bottom_end >= MONITOR_LEFT_X )); then
+      (( strut_bottom > STRUT_BOTTOM )) && STRUT_BOTTOM=$strut_bottom
+    fi
+  fi
+done < <(xprop -root _NET_CLIENT_LIST | grep -oP '0x[0-9a-f]+')
+
+USABLE_TOP=$(( MONITOR_TOP_Y + STRUT_TOP ))
+USABLE_HEIGHT=$(( MONITOR_HEIGHT - STRUT_TOP - STRUT_BOTTOM ))
+
+NET_EXTENTS=$(xprop -id "$ACTIVE_WINDOW_ID" _NET_FRAME_EXTENTS 2>/dev/null)
+if [[ $NET_EXTENTS =~ ([0-9]+),\ ([0-9]+),\ ([0-9]+),\ ([0-9]+) ]]; then
+  FRAME_TOP=${BASH_REMATCH[3]}
+  FRAME_BOTTOM=${BASH_REMATCH[4]}
+else
+  FRAME_TOP=0
+  FRAME_BOTTOM=0
+fi
+
+TARGET_WIDTH=$((MONITOR_WIDTH * WIDTH_RATIO / 100))
+TARGET_HEIGHT=$(( USABLE_HEIGHT - FRAME_TOP - FRAME_BOTTOM ))
+TARGET_Y=$USABLE_TOP
+
+if [[ $DIRECTION == "left" ]]; then
+  TARGET_X=$MONITOR_LEFT_X
+else
+  TARGET_X=$((MONITOR_LEFT_X + MONITOR_WIDTH - TARGET_WIDTH))
+fi
+
+xdotool windowmove "$ACTIVE_WINDOW_ID" "$TARGET_X" "$TARGET_Y"
+xdotool windowsize "$ACTIVE_WINDOW_ID" "$TARGET_WIDTH" "$TARGET_HEIGHT"

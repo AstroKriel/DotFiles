@@ -1,0 +1,36 @@
+#!/bin/bash
+RATIO=70
+
+ACTIVE_WINDOW_ID=$(xdotool getactivewindow)
+
+xdotool windowstate --remove FULLSCREEN "$ACTIVE_WINDOW_ID"
+xdotool windowstate --remove MAXIMIZED_VERT "$ACTIVE_WINDOW_ID"
+xdotool windowstate --remove MAXIMIZED_HORZ "$ACTIVE_WINDOW_ID"
+
+sleep 0.05
+
+eval $(xdotool getwindowgeometry --shell "$ACTIVE_WINDOW_ID")
+
+while IFS= read -r line; do
+  if [[ $line =~ ([0-9]+)x([0-9]+)\+([0-9]+)\+([0-9]+) ]]; then
+    MONITOR_WIDTH=${BASH_REMATCH[1]}
+    MONITOR_HEIGHT=${BASH_REMATCH[2]}
+    MONITOR_LEFT_X=${BASH_REMATCH[3]}
+    MONITOR_TOP_Y=${BASH_REMATCH[4]}
+    if (( X + WIDTH / 2 >= MONITOR_LEFT_X && X + WIDTH / 2 < MONITOR_LEFT_X + MONITOR_WIDTH &&
+          Y + HEIGHT / 2 >= MONITOR_TOP_Y && Y + HEIGHT / 2 < MONITOR_TOP_Y + MONITOR_HEIGHT )); then
+      break
+    fi
+  fi
+done < <(xrandr | grep " connected")
+
+MONITOR_CENTER_X=$((MONITOR_LEFT_X + MONITOR_WIDTH / 2))
+MONITOR_CENTER_Y=$((MONITOR_TOP_Y + MONITOR_HEIGHT / 2))
+
+TARGET_WIDTH=$((MONITOR_WIDTH * RATIO / 100))
+TARGET_HEIGHT=$((MONITOR_HEIGHT * RATIO / 100))
+TARGET_X=$((MONITOR_CENTER_X - TARGET_WIDTH / 2))
+TARGET_Y=$((MONITOR_CENTER_Y - TARGET_HEIGHT / 2))
+
+xdotool windowmove "$ACTIVE_WINDOW_ID" "$TARGET_X" "$TARGET_Y"
+xdotool windowsize "$ACTIVE_WINDOW_ID" "$TARGET_WIDTH" "$TARGET_HEIGHT"
