@@ -1,7 +1,7 @@
 ## { SCRIPT
 
 from pathlib import Path
-from setup.extra_config import ExtraConfig, EXTRAS_DIR
+from setup.extras_data.extra_config import ExtraConfig, EXTRAS_DIR
 
 EXTRAS: dict[str, ExtraConfig] = {
     "personal/project-aliases.sh":
