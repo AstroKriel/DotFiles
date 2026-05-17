@@ -38,13 +38,13 @@ def link_all_rules(
         target_path = TARGET_DIR / relative_path
         apply_shell_actions.ensure_dir_exists(
             directory=target_path.parent,
-            script_name=SCRIPT_NAME,
+            log=LOG_MESSAGE,
             dry_run=dry_run,
         )
         apply_shell_actions.create_symlink(
             source_path=source_path,
             target_path=target_path,
-            script_name=SCRIPT_NAME,
+            log=LOG_MESSAGE,
             dry_run=dry_run,
         )
 
@@ -58,7 +58,7 @@ def remove_symlinks(
     *,
     dry_run: bool,
 ) -> None:
-    log_messages.configure(write_to_file=not dry_run)
+    log_messages.configure_logger(write_to_file=not dry_run)
     LOG_MESSAGE(
         log_messages.format_dry_run(
             message="Started removing rule symlinks",
@@ -68,7 +68,7 @@ def remove_symlinks(
     for target_path in sorted(TARGET_DIR.rglob("*.md")):
         apply_shell_actions.remove_symlink(
             target_path=target_path,
-            script_name=SCRIPT_NAME,
+            log=LOG_MESSAGE,
             dry_run=dry_run,
         )
     LOG_MESSAGE(
@@ -83,7 +83,7 @@ def run(
     *,
     dry_run: bool,
 ) -> None:
-    log_messages.configure(write_to_file=not dry_run)
+    log_messages.configure_logger(write_to_file=not dry_run)
     LOG_MESSAGE(
         log_messages.format_dry_run(
             message="Started linking rules",

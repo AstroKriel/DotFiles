@@ -35,7 +35,7 @@ def validate_profile(
     *,
     profile: load_profiles.SystemProfile,
 ) -> bool:
-    """Validate profile subscriptions without changing the system."""
+    """Return `True` iff profile subscriptions are valid; log issues otherwise."""
     is_valid = True
     known_shells = {shell_config.name for shell_config in setup_shell.SHELLS}
     if profile.shell is not None and profile.shell not in known_shells:
@@ -122,7 +122,7 @@ def main() -> None:
     dry_run = cast(bool, args.dry_run)
     remove_symlinks = cast(bool, args.remove_symlinks)
     check_profile = cast(bool, args.check_profile)
-    log_messages.configure(write_to_file=not (dry_run or check_profile))
+    log_messages.configure_logger(write_to_file=not (dry_run or check_profile))
     profile = load_profiles.load_profile(
         required=not remove_symlinks,
     )

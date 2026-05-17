@@ -27,7 +27,7 @@ def get_timestamp() -> str:
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def log_message(
+def _log_message(
     *,
     script_name: str,
     message: str,
@@ -47,7 +47,7 @@ def log_message(
         log_stream.write(log_entry)
 
 
-def configure(
+def configure_logger(
     *,
     write_to_file: bool,
 ) -> None:
@@ -72,7 +72,7 @@ def make_logger_fn(
     def _log(
         message: str,
     ) -> None:
-        log_message(
+        _log_message(
             script_name=script_name,
             message=message,
         )
@@ -87,7 +87,7 @@ def make_fail_fn(
     def _fail(
         message: str,
     ) -> NoReturn:
-        log_message(
+        _log_message(
             script_name=script_name,
             message=f"ERROR: {message}",
         )

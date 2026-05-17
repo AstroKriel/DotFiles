@@ -61,13 +61,13 @@ def setup_extra(
         return
     apply_shell_actions.ensure_dir_exists(
         directory=extra.target_path.parent,
-        script_name=SCRIPT_NAME,
+        log=LOG_MESSAGE,
         dry_run=dry_run,
     )
     apply_shell_actions.create_symlink(
         source_path=extra.source_path,
         target_path=extra.target_path,
-        script_name=SCRIPT_NAME,
+        log=LOG_MESSAGE,
         dry_run=dry_run,
     )
 
@@ -113,7 +113,7 @@ def remove_symlinks(
     dry_run: bool,
     extra_keys: tuple[str, ...] | None = None,
 ) -> None:
-    log_messages.configure(write_to_file=not dry_run)
+    log_messages.configure_logger(write_to_file=not dry_run)
     LOG_MESSAGE(
         log_messages.format_dry_run(
             message="Started removing extra config symlinks",
@@ -124,7 +124,7 @@ def remove_symlinks(
     for extra in selected_extra_configs.values():
         apply_shell_actions.remove_symlink(
             target_path=extra.target_path,
-            script_name=SCRIPT_NAME,
+            log=LOG_MESSAGE,
             dry_run=dry_run,
         )
     LOG_MESSAGE(
@@ -141,7 +141,7 @@ def run(
     extra_keys: tuple[str, ...] | None = None,
     platform_tags: tuple[str, ...] | None = None,
 ) -> None:
-    log_messages.configure(write_to_file=not dry_run)
+    log_messages.configure_logger(write_to_file=not dry_run)
     LOG_MESSAGE(
         log_messages.format_dry_run(
             message="Started setting up extra configs",
