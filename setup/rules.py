@@ -18,7 +18,7 @@ from utils import apply_shell_actions, log_messages
 
 SCRIPT_NAME = Path(__file__).name
 ROOT_DIR = Path(__file__).resolve().parent.parent
-RULES_DIR = ROOT_DIR / "rules"
+RULES_DIR = ROOT_DIR / "configs" / "rules"
 TARGET_DIR = Path.home() / ".rules"
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)

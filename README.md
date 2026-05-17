@@ -109,7 +109,7 @@ extras = ["arch-x11/touchpad-workspace-gestures.conf"]
 | `platforms` | Capability tags used to gate platform-specific extras |
 | `editors` | Editor configs to apply |
 | `tools` | Tool configs to apply |
-| `extras` | Optional files or scripts under `extras/` |
+| `extras` | Optional files or scripts under `configs/extras/` |
 | `link_rules` | Whether tracked rules are linked into `~/.rules/` |
 | `set_login_shell` | Whether setup should call `chsh` for the selected shell |
 
@@ -192,10 +192,10 @@ Some editor configs are generated from smaller tracked modules.
 
 | Editor | Config | Canonical files | Generated file |
 |---|---|---|---|
-| Zed | Settings | `editors/zed/settings/*.jsonc` | `editors/zed/settings.json` |
-| Zed | Keymap | `editors/zed/keymap/*.jsonc` | `editors/zed/keymap.json` |
-| VS Code | Settings | `editors/vscode/settings/*.jsonc` | `editors/vscode/settings.json` |
-| VS Code | Keybindings | `editors/vscode/keybindings/*.jsonc` | `editors/vscode/keybindings.json` |
+| Zed | Settings | `configs/editors/zed/settings/*.jsonc` | `configs/editors/zed/settings.json` |
+| Zed | Keymap | `configs/editors/zed/keymap/*.jsonc` | `configs/editors/zed/keymap.json` |
+| VS Code | Settings | `configs/editors/vscode/settings/*.jsonc` | `configs/editors/vscode/settings.json` |
+| VS Code | Keybindings | `configs/editors/vscode/keybindings/*.jsonc` | `configs/editors/vscode/keybindings.json` |
 
 Regenerate after editing module files:
 

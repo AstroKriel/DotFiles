@@ -26,7 +26,7 @@ from utils import log_messages, apply_shell_actions
 SCRIPT_NAME = Path(__file__).name
 HOME_DIR = Path.home()
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DOTFILES_DIR = ROOT_DIR / "editors"
+DOTFILES_DIR = ROOT_DIR / "configs" / "editors"
 CONFIG_DIR = HOME_DIR / ".config"
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)

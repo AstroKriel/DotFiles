@@ -23,7 +23,7 @@ from utils import log_messages, apply_shell_actions
 HOME_DIR = Path.home()
 SCRIPT_NAME = Path(__file__).name
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DOTFILES_DIR = ROOT_DIR / "tools"
+DOTFILES_DIR = ROOT_DIR / "configs" / "tools"
 CONFIG_DIR = HOME_DIR / ".config"
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
