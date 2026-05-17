@@ -41,8 +41,8 @@ def log_message(
         parents=True,
         exist_ok=True,
     )
-    with open(log_file, "a") as f:
-        f.write(log_entry)
+    with open(log_file, "a") as log_stream:
+        log_stream.write(log_entry)
 
 
 def configure(

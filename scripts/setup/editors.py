@@ -138,8 +138,8 @@ def merge_config_modules(
     if mode == "dict":
         merged_dict: dict[str, object] = {}
         for module in sorted(modules_dir.glob("*.jsonc")):
-            with module.open("r", encoding="utf-8") as f:
-                raw_content = f.read()
+            with module.open("r", encoding="utf-8") as module_file:
+                raw_content = module_file.read()
                 filtered_content = filter_jsonc_comments(raw_content)
                 dict_content = cast(object, json.loads(filtered_content))
                 if not isinstance(dict_content, dict):
@@ -155,8 +155,8 @@ def merge_config_modules(
     elif mode == "list":
         merged_list: list[object] = []
         for module in sorted(modules_dir.glob("*.jsonc")):
-            with module.open("r", encoding="utf-8") as f:
-                raw_content = f.read()
+            with module.open("r", encoding="utf-8") as module_file:
+                raw_content = module_file.read()
                 filtered_content = filter_jsonc_comments(raw_content)
                 list_content = cast(object, json.loads(filtered_content))
                 if not isinstance(list_content, list):
@@ -183,7 +183,7 @@ def install_extensions(
     if not extensions_file.exists():
         _log_message(f"No extensions file found at: {extensions_file}")
         return
-    extensions = [e for e in extensions_file.read_text().splitlines() if e.strip()]
+    extensions = [extension for extension in extensions_file.read_text().splitlines() if extension.strip()]
     for ext in extensions:
         apply_shell_actions.run_command(
             args=[command, "--install-extension", ext],
@@ -320,8 +320,8 @@ def setup_editor_files(
         if dry_run:
             _log_message(f"[dry-run] Would write merged settings to: {output_path}")
         else:
-            with output_path.open("w", encoding="utf-8") as f:
-                json.dump(merged_config, f, indent=2)
+            with output_path.open("w", encoding="utf-8") as output_file:
+                json.dump(merged_config, output_file, indent=2)
             _log_message(f"Wrote merged config to: {output_path}")
         ## ensure target directory exists
         apply_shell_actions.ensure_dir_exists(

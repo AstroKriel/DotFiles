@@ -117,7 +117,7 @@ def remove_symlinks(
             dry_run=dry_run,
         ),
     )
-    all_files = UTILS_FILES + [f for s in SHELLS for f in s.files]
+    all_files = UTILS_FILES + [file_name for shell_config in SHELLS for file_name in shell_config.files]
     for file_name in all_files:
         apply_shell_actions.remove_symlink(
             target_path=HOME_DIR / f".{file_name}",

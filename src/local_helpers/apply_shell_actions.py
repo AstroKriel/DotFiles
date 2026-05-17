@@ -50,8 +50,8 @@ def run_command(
             message=f"Done: {description}",
         )
         return True
-    except subprocess.CalledProcessError as e:
-        stderr_value = cast(object, e.stderr)
+    except subprocess.CalledProcessError as error:
+        stderr_value = cast(object, error.stderr)
         stderr = stderr_value if isinstance(stderr_value, str) else ""
         error_output = stderr.strip() if (capture_output and stderr) else "(no output captured)"
         log_messages.log_message(
@@ -116,11 +116,11 @@ def backup_file(
                     dry_run=dry_run,
                 ),
             )
-        except Exception as e:
+        except Exception as error:
             ## broken or unresolvable symlink
             log_messages.log_message(
                 script_name=script_name,
-                message=f"Warning: failed to resolve symlink {target_path}: {e}",
+                message=f"Warning: failed to resolve symlink {target_path}: {error}",
             )
         if dry_run:
             log_messages.log_message(
