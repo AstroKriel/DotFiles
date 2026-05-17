@@ -23,7 +23,7 @@ from local_helpers import project_dirs
 
 SCRIPT_NAME = Path(__file__).name
 SHELL_DIR = project_dirs.DIRS.shell
-HOME_DIR = Path.home()
+HOME_DIR = project_dirs.TARGETS.home
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
 

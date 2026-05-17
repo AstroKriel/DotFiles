@@ -19,7 +19,7 @@ from local_helpers import project_dirs
 
 SCRIPT_NAME = Path(__file__).name
 RULES_DIR = project_dirs.DIRS.rules
-TARGET_DIR = Path.home() / ".rules"
+TARGET_DIR = project_dirs.TARGETS.rules
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
 

@@ -25,9 +25,9 @@ from local_helpers import project_dirs
 ##
 
 SCRIPT_NAME = Path(__file__).name
-HOME_DIR = Path.home()
+HOME_DIR = project_dirs.TARGETS.home
 EDITORS_DIR = project_dirs.DIRS.editors
-CONFIG_DIR = HOME_DIR / ".config"
+CONFIG_DIR = project_dirs.TARGETS.config
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
 

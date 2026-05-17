@@ -21,10 +21,10 @@ from local_helpers import project_dirs
 ## === TOOL CONFIG
 ##
 
-HOME_DIR = Path.home()
+HOME_DIR = project_dirs.TARGETS.home
 SCRIPT_NAME = Path(__file__).name
 TOOLS_DIR = project_dirs.DIRS.tools
-CONFIG_DIR = HOME_DIR / ".config"
+CONFIG_DIR = project_dirs.TARGETS.config
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
 
