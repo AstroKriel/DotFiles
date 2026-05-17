@@ -12,6 +12,6 @@ this-system.toml
 
 ## generated outputs
 history.log
-ssh_keys/
+key_records/
 
 ## .

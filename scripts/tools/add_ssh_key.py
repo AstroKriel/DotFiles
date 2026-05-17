@@ -24,7 +24,7 @@ from local_helpers import project_dirs
 
 SCRIPT_NAME = Path(__file__).name
 SSH_DIR = project_dirs.TARGETS.ssh
-NOTES_DIR = project_dirs.DIRS.ssh_keys
+KEY_RECORDS_DIR = project_dirs.DIRS.ssh_keys
 
 LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 FAIL_WITH_MESSAGE = log_messages.make_fail_fn(SCRIPT_NAME)
@@ -45,7 +45,7 @@ class Inputs:
     comment: str
     key_file: Path
     pub_file: Path
-    notes_file: Path
+    record_file: Path
 
 
 ##
@@ -105,7 +105,7 @@ def collect_inputs(
     today = datetime.date.today().strftime("%Y-%m-%d")
     key_file = SSH_DIR / f"id_ed25519_{name}"
     pub_file = key_file.with_suffix(".pub")
-    notes_file = NOTES_DIR / f"{name}-{today}.txt"
+    record_file = KEY_RECORDS_DIR / f"{name}-{today}.txt"
     comment = f"for {purpose} from {device} created on {today}"
     return Inputs(
         name=name,
@@ -115,7 +115,7 @@ def collect_inputs(
         comment=comment,
         key_file=key_file,
         pub_file=pub_file,
-        notes_file=notes_file,
+        record_file=record_file,
     )
 
 
@@ -139,7 +139,7 @@ def print_summary(
     LOG_MESSAGE(f"Date: {inputs.today}")
     LOG_MESSAGE(f"Key file: {inputs.key_file}")
     LOG_MESSAGE(f"Comment: {inputs.comment}")
-    LOG_MESSAGE(f"Notes: {inputs.notes_file}")
+    LOG_MESSAGE(f"Notes: {inputs.record_file}")
 
 
 def generate_key(
@@ -170,18 +170,18 @@ def generate_key(
     LOG_MESSAGE(f"Key created at {key_file}")
 
 
-def write_notes(
+def write_key_record(
     *,
     inputs: Inputs,
 ) -> None:
-    NOTES_DIR.mkdir(
+    KEY_RECORDS_DIR.mkdir(
         mode=0o700,
         exist_ok=True,
     )
-    NOTES_DIR.chmod(0o700)
+    KEY_RECORDS_DIR.chmod(0o700)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     public_key = inputs.pub_file.read_text().rstrip("\n")
-    inputs.notes_file.write_text(
+    inputs.record_file.write_text(
         f"# SSH Key Notes: {inputs.name}\n"
         f"# Created: {timestamp}\n"
         f"\n"
@@ -209,8 +209,8 @@ def write_notes(
         f"## Verify\n"
         f"ssh <ALIAS>\n",
     )
-    inputs.notes_file.chmod(0o600)
-    LOG_MESSAGE(f"Notes saved to {inputs.notes_file}")
+    inputs.record_file.chmod(0o600)
+    LOG_MESSAGE(f"Notes saved to {inputs.record_file}")
 
 
 ##
@@ -243,7 +243,7 @@ def main() -> int:
         key_file=inputs.key_file,
         comment=inputs.comment,
     )
-    write_notes(inputs=inputs)
+    write_key_record(inputs=inputs)
     LOG_MESSAGE("Done")
     return 0
 

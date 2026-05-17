@@ -36,7 +36,7 @@ class ProjectDirs:
     editors: Path
     tools: Path
     rules: Path
-    ssh_keys: Path
+    key_records: Path
 
 
 DIRS = ProjectDirs(
@@ -46,7 +46,7 @@ DIRS = ProjectDirs(
     editors=_PROJECT_ROOT / "configs" / "editors",
     tools=_PROJECT_ROOT / "configs" / "tools",
     rules=_PROJECT_ROOT / "configs" / "rules",
-    ssh_keys=_PROJECT_ROOT / "ssh_keys",
+    key_records=_PROJECT_ROOT / "key_records",
 )
 
 ##
