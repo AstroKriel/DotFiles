@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import cast
 ## local
 from setup._extras.config import ExtraConfig
-from setup._extras import arch_x11, hpc, macos, personal
+from setup._extras import arch_x11, hpc, macos, personal_machine
 from utils import load_profiles
 from utils import log_messages, apply_shell_actions
 
@@ -26,7 +26,7 @@ EXTRAS: dict[str, ExtraConfig] = {
     **macos.EXTRAS,
     **arch_x11.EXTRAS,
     **hpc.EXTRAS,
-    **personal.EXTRAS,
+    **personal_machine.EXTRAS,
 }
 
 ##
