@@ -57,7 +57,7 @@ pulling the browser window into the current workspace.
 Install the theme toggle extra, then run it directly or bind it in XFCE Keyboard settings:
 
 ```bash
-uv run -m setup.extras --which arch-x11/xfce-theme-toggle
+uv run -m setup_scripts.extras --which arch-x11/xfce-theme-toggle
 xfce-theme-toggle
 xfce-theme-toggle light
 xfce-theme-toggle dark

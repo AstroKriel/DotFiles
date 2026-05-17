@@ -16,8 +16,8 @@ import sys
 from typing import cast
 
 ## local
-from utils import load_profiles
-from utils import log_messages, apply_shell_actions
+from setup_helpers import load_profiles
+from setup_helpers import log_messages, apply_shell_actions
 
 ##
 ## === EDITOR CONFIG

@@ -6,7 +6,7 @@ Main entry points:
 
 ```bash
 uv run setup_configs.py
-uv run -m setup.<layer> <args>
+uv run -m setup_scripts.<layer> <args>
 ```
 
 All setup commands support `--dry-run` where the layer exposes it.
@@ -75,16 +75,16 @@ cd DotFiles
 
 ## Select a Profile
 
-`this-system.toml` selects the active system profile and is ignored by git. Usually it is a symlink to a tracked profile under `profiles/`.
+`this-system.toml` selects the active system profile and is ignored by git. Usually it is a symlink to a tracked profile under `config-profiles/`.
 
 ```bash
-ln -s profiles/<profile-name>.toml this-system.toml
+ln -s config-profiles/<profile-name>.toml this-system.toml
 ```
 
 Copying a tracked profile to `this-system.toml` also works:
 
 ```bash
-cp profiles/<profile-name>.toml this-system.toml
+cp config-profiles/<profile-name>.toml this-system.toml
 ```
 
 Validate the selected profile before applying changes:
@@ -105,7 +105,7 @@ extras = ["arch-x11/touchpad-workspace-gestures.conf"]
 
 | Profile key | Purpose |
 |---|---|
-| `shell` | Login shell managed by `setup.shell` |
+| `shell` | Login shell managed by `setup_scripts.shell` |
 | `platforms` | Capability tags used to gate platform-specific extras |
 | `editors` | Editor configs to apply |
 | `tools` | Tool configs to apply |
@@ -117,7 +117,7 @@ extras = ["arch-x11/touchpad-workspace-gestures.conf"]
 
 ## Install Applications
 
-The setup scripts configure applications, but they do not install every application package. Install the shell, editors, tools, and extras required by the selected profile before running the full setup.
+The setup scripts configure applications, but they do not install every application package. Install the shell, editors, tools, and extras required by the selected profile before running the full setup_scripts.
 
 Example package commands:
 
@@ -160,28 +160,28 @@ Use the main script to apply every subscribed layer in the active profile:
 uv run setup_configs.py
 ```
 
-Use layer modules directly when changing only one part of the setup. Direct layer runs use Python module execution, so include `-m`.
+Use layer modules directly when changing only one part of the setup_scripts. Direct layer runs use Python module execution, so include `-m`.
 
 | Layer | Command | Purpose |
 |---|---|---|
-| Shell | `uv run -m setup.shell` | Applies the selected shell config |
-| Tools | `uv run -m setup.tools --which <tool>` | Applies one subscribed `<tool>` |
-| Editors | `uv run -m setup.editors --which <editor>` | Applies one subscribed `<editor>` |
-| Extras | `uv run -m setup.extras --which <extras-relative-path>` | Applies one subscribed extra |
-| Rules | `uv run -m setup.rules` | Links rules into `~/.rules/` |
+| Shell | `uv run -m setup_scripts.shell` | Applies the selected shell config |
+| Tools | `uv run -m setup_scripts.tools --which <tool>` | Applies one subscribed `<tool>` |
+| Editors | `uv run -m setup_scripts.editors --which <editor>` | Applies one subscribed `<editor>` |
+| Extras | `uv run -m setup_scripts.extras --which <extras-relative-path>` | Applies one subscribed extra |
+| Rules | `uv run -m setup_scripts.rules` | Links rules into `~/.rules/` |
 
 Run all subscribed entries for a single layer:
 
 ```bash
-uv run -m setup.tools --all
-uv run -m setup.editors --all
-uv run -m setup.extras --all
+uv run -m setup_scripts.tools --all
+uv run -m setup_scripts.editors --all
+uv run -m setup_scripts.extras --all
 ```
 
 Check which subscribed tools are installed before applying tool configs:
 
 ```bash
-uv run -m setup.tools --check-only --all
+uv run -m setup_scripts.tools --check-only --all
 ```
 
 ---
@@ -200,8 +200,8 @@ Some editor configs are generated from smaller tracked modules.
 Regenerate after editing module files:
 
 ```bash
-uv run -m setup.editors --which zed
-uv run -m setup.editors --which vscode
+uv run -m setup_scripts.editors --which zed
+uv run -m setup_scripts.editors --which vscode
 ```
 
 > **Note:** Treat generated JSON files as output. Edit the module files instead.

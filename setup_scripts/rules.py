@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import cast
 
 ## local
-from utils import apply_shell_actions, log_messages
+from setup_helpers import apply_shell_actions, log_messages
 
 ##
 ## === CONFIG
