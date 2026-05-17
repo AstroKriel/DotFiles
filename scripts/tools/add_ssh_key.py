@@ -67,7 +67,11 @@ def fail(message: str) -> NoReturn:
 ##
 
 
-def prompt_required(label: str, default: str | None = None) -> str:
+def prompt_required(
+    label: str,
+    *,
+    default: str | None = None,
+) -> str:
     suffix = f" [{default}]" if default else ""
     while True:
         response = input(f"{label}{suffix}: ").strip()
@@ -78,7 +82,11 @@ def prompt_required(label: str, default: str | None = None) -> str:
         warn("value required")
 
 
-def prompt_yes_no(label: str, default_yes: bool = False) -> bool:
+def prompt_yes_no(
+    label: str,
+    *,
+    default_yes: bool = False,
+) -> bool:
     suffix = "[Y/n]" if default_yes else "[y/N]"
     response = input(f"{label} {suffix}: ").strip().lower()
     if not response:
@@ -130,7 +138,11 @@ def ensure_ssh_dir() -> None:
     SSH_DIR.chmod(0o700)
 
 
-def check_key_collision(key_file: Path, pub_file: Path) -> None:
+def check_key_collision(
+    *,
+    key_file: Path,
+    pub_file: Path,
+) -> None:
     if not key_file.exists():
         return
     if not prompt_yes_no(f"Key {key_file} already exists. Overwrite?"):
@@ -155,7 +167,11 @@ def check_alias_collision(alias: str) -> None:
 ##
 
 
-def generate_key(key_file: Path, comment: str) -> None:
+def generate_key(
+    key_file: Path,
+    *,
+    comment: str,
+) -> None:
     command = [
         "ssh-keygen",
         "-t", "ed25519",
@@ -174,7 +190,13 @@ def generate_key(key_file: Path, comment: str) -> None:
 ##
 
 
-def build_config_block(alias: str, host: str, user: str, key_file: Path) -> str:
+def build_config_block(
+    *,
+    alias: str,
+    host: str,
+    user: str,
+    key_file: Path,
+) -> str:
     return (
         f"Host {alias}\n"
         f"  HostName {host}\n"
@@ -321,8 +343,8 @@ def main() -> None:
     if not NAME_PATTERN.fullmatch(name):
         fail(f"name must be alphanumeric, dash, or underscore (got: {name})")
     purpose = arg_purpose or prompt_required("Purpose")
-    device = arg_device or prompt_required("Device", socket.gethostname())
-    alias = arg_alias or prompt_required("SSH config alias", name)
+    device = arg_device or prompt_required("Device", default=socket.gethostname())
+    alias = arg_alias or prompt_required("SSH config alias", default=name)
 
     needs_remote = not (arg_no_config and arg_upload == "skip")
     host = arg_host or ""
@@ -342,7 +364,10 @@ def main() -> None:
     heading("Pre-flight checks")
     ensure_ssh_dir()
     info(f"{SSH_DIR} ok")
-    check_key_collision(key_file, pub_file)
+    check_key_collision(
+        key_file=key_file,
+        pub_file=pub_file,
+    )
     check_alias_collision(alias)
 
     heading("Summary")
@@ -360,13 +385,21 @@ def main() -> None:
         fail("aborted")
 
     heading("Step 1: Generate key")
-    generate_key(key_file, comment)
+    generate_key(
+        key_file,
+        comment=comment,
+    )
 
     config_block = ""
     config_appended = False
     if host and not arg_no_config:
         heading("Step 2: ~/.ssh/config entry")
-        config_block = build_config_block(alias, host, user, key_file)
+        config_block = build_config_block(
+            alias=alias,
+            host=host,
+            user=user,
+            key_file=key_file,
+        )
         config_appended = maybe_append_config(config_block)
 
     upload_mode = arg_upload
