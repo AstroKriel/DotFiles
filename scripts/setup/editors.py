@@ -39,6 +39,7 @@ else:
     _vscode_target_dir = Path.home() / ".config/Code/User"
 _VSCODE_TARGET_DIR = _vscode_target_dir
 
+
 class PostSetup(Enum):
     DOOM_SYNC = auto()
 
