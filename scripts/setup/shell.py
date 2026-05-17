@@ -52,19 +52,6 @@ SHELLS = [
 ##
 
 
-def remove_file_if_exists(
-    *,
-    target_path: Path,
-    dry_run: bool,
-):
-    if target_path.exists() or target_path.is_symlink():
-        apply_shell_actions.backup_file(
-            target_path=target_path,
-            logger_fn=LOG_MESSAGE,
-            dry_run=dry_run,
-        )
-
-
 def change_login_shell(
     *,
     shell: str,
@@ -170,8 +157,9 @@ def run(
     ## remove config files for other shell envs
     for s in others:
         for file_name in s.files:
-            remove_file_if_exists(
+            apply_shell_actions.backup_file(
                 target_path=HOME_DIR / f".{file_name}",
+                logger_fn=LOG_MESSAGE,
                 dry_run=dry_run,
             )
     if set_login_shell:
