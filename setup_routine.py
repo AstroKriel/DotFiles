@@ -24,7 +24,7 @@ from local_helpers import log_messages
 
 SCRIPT_NAME = Path(__file__).name
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 ##
 ## === PROFILE VALIDATION

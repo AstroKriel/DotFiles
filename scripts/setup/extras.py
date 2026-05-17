@@ -20,7 +20,7 @@ from local_helpers import log_messages, apply_shell_actions
 
 SCRIPT_NAME = Path(__file__).name
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 EXTRAS: dict[str, ExtraConfig] = {
     **macos.EXTRAS,

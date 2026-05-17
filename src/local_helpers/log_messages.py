@@ -65,7 +65,7 @@ def format_dry_run(
     return message
 
 
-def make_logger(
+def make_logger_fn(
     script_name: str,
 ) -> Callable[[str], None]:
 
@@ -80,7 +80,7 @@ def make_logger(
     return _log
 
 
-def make_fail(
+def make_fail_fn(
     script_name: str,
 ) -> Callable[[str], NoReturn]:
 

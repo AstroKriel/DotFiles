@@ -21,7 +21,7 @@ SCRIPT_NAME = Path(__file__).name
 RULES_DIR = project_dirs.DIRS.rules
 TARGET_DIR = project_dirs.TARGETS.rules
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 ##
 ## === CORE LOGIC

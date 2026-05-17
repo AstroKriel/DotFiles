@@ -26,7 +26,7 @@ SCRIPT_NAME = Path(__file__).name
 TOOLS_DIR = project_dirs.DIRS.tools
 CONFIG_DIR = project_dirs.TARGETS.config
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 
 @dataclass

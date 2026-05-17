@@ -25,7 +25,7 @@ SCRIPT_NAME = Path(__file__).name
 SHELL_DIR = project_dirs.DIRS.shell
 HOME_DIR = project_dirs.TARGETS.home
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 
 @dataclass

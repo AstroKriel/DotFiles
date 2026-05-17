@@ -27,8 +27,8 @@ SCRIPT_NAME = Path(__file__).name
 SSH_DIR = project_dirs.TARGETS.ssh
 NOTES_DIR = project_dirs.TARGETS.ssh_notes
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
-FAIL = log_messages.make_fail(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
+FAIL_WITH_MESSAGE = log_messages.make_fail_fn(SCRIPT_NAME)
 
 ##
 ## === DATA MODELS
@@ -91,7 +91,7 @@ def ensure_name_is_valid(
 ) -> None:
     name_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
     if not name_pattern.fullmatch(name):
-        FAIL(f"`--name` must be alphanumeric, dash, or underscore; got `{name}`.")
+        FAIL_WITH_MESSAGE(f"`--name` must be alphanumeric, dash, or underscore; got `{name}`.")
 
 
 def collect_inputs(
@@ -164,7 +164,7 @@ def generate_key(
         capture_output=False,
     )
     if not succeeded:
-        FAIL("ssh-keygen failed")
+        FAIL_WITH_MESSAGE("ssh-keygen failed")
     key_file.chmod(0o600)
     LOG_MESSAGE(f"Key created at {key_file}")
 

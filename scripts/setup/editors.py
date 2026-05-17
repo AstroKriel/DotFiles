@@ -29,7 +29,7 @@ HOME_DIR = project_dirs.TARGETS.home
 EDITORS_DIR = project_dirs.DIRS.editors
 CONFIG_DIR = project_dirs.TARGETS.config
 
-LOG_MESSAGE = log_messages.make_logger(SCRIPT_NAME)
+LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 if sys.platform == "darwin":
     ## macOS
