@@ -9,7 +9,7 @@ import argparse
 import datetime
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import cast
 
@@ -34,26 +34,140 @@ FAIL_WITH_MESSAGE = log_messages.make_fail_fn(SCRIPT_NAME)
 ##
 
 
-@dataclass(frozen=True)
-class Inputs:
-    """Resolved inputs needed to generate a key and write its notes file."""
-
+@dataclass
+class SSHKeyConfig:
     name: str
     purpose: str
     device: str
-    today: str
-    comment: str
-    key_file: Path
-    pub_file: Path
-    record_file: Path
+    today: str = field(init=False)
+    comment: str = field(init=False)
+    file_path: Path = field(init=False)
+    pub_file: Path = field(init=False)
+    record_file: Path = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.today = datetime.date.today().strftime("%Y-%m-%d")
+        self.comment = f"for {self.purpose} from {self.device} created on {self.today}"
+        self.file_path = SSH_CONFIG_DIR / f"id_ed25519_{self.name}"
+        self.pub_file = self.file_path.with_suffix(".pub")
+        self.record_file = SSH_RECORDS_DIR / f"{self.name}-{self.today}.txt"
 
 
 ##
-## === CLI
+## === PIPELINE STEPS
 ##
 
 
-def parse_args() -> argparse.Namespace:
+def ensure_name_is_valid(
+    *,
+    name: str,
+) -> None:
+    valid_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+    if not valid_pattern.fullmatch(name):
+        FAIL_WITH_MESSAGE(f"`--name` must be alphanumeric, dash, or underscore; got `{name}`.")
+
+
+def ensure_ssh_dir() -> None:
+    SSH_CONFIG_DIR.mkdir(
+        mode=0o700,
+        exist_ok=True,
+    )
+    SSH_CONFIG_DIR.chmod(0o700)
+    LOG_MESSAGE(f"{SSH_CONFIG_DIR} ok")
+
+
+def print_summary(
+    *,
+    ssh_key_config: SSHKeyConfig,
+) -> None:
+    LOG_MESSAGE("Summary:")
+    LOG_MESSAGE(f"Name: {ssh_key_config.name}")
+    LOG_MESSAGE(f"Purpose: {ssh_key_config.purpose}")
+    LOG_MESSAGE(f"Device: {ssh_key_config.device}")
+    LOG_MESSAGE(f"Date: {ssh_key_config.today}")
+    LOG_MESSAGE(f"Key file: {ssh_key_config.file_path}")
+    LOG_MESSAGE(f"Comment: {ssh_key_config.comment}")
+    LOG_MESSAGE(f"Notes: {ssh_key_config.record_file}")
+
+
+def generate_key(
+    *,
+    file_path: Path,
+    comment: str,
+) -> None:
+    command = [
+        "ssh-keygen",
+        "-t",
+        "ed25519",
+        "-a",
+        "100",
+        "-f",
+        str(file_path),
+        "-C",
+        comment,
+    ]
+    succeeded = apply_shell_actions.run_command(
+        args=command,
+        logger_fn=LOG_MESSAGE,
+        description=f"generate ed25519 ssh key at {file_path}",
+        capture_output=False,
+    )
+    if not succeeded:
+        FAIL_WITH_MESSAGE("ssh-keygen failed")
+    file_path.chmod(0o600)
+    LOG_MESSAGE(f"Key created at {file_path}")
+
+
+def write_key_record(
+    *,
+    ssh_key_config: SSHKeyConfig,
+) -> None:
+    SSH_RECORDS_DIR.mkdir(
+        mode=0o700,
+        exist_ok=True,
+    )
+    SSH_RECORDS_DIR.chmod(0o700)
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    public_key = ssh_key_config.pub_file.read_text().rstrip("\n")
+    ssh_key_config.record_file.write_text(
+        f"# SSH Key Notes: {ssh_key_config.name}\n"
+        f"# Created: {timestamp}\n"
+        f"\n"
+        f"## Key files\n"
+        f"{ssh_key_config.file_path}   (private; never share)\n"
+        f"{ssh_key_config.pub_file}   (public)\n"
+        f"\n"
+        f"## Public key\n"
+        f"{public_key}\n"
+        f"\n"
+        f"## Keygen command\n"
+        f'ssh-keygen -t ed25519 -a 100 -f "{ssh_key_config.file_path}" -C "{ssh_key_config.comment}"\n'
+        f"\n"
+        f"## Suggested ~/.ssh/config block (fill in placeholders)\n"
+        f"Host <ALIAS>\n"
+        f"  HostName <REMOTE_HOST>\n"
+        f"  User <REMOTE_USER>\n"
+        f"  IdentityFile {ssh_key_config.file_path}\n"
+        f"  IdentitiesOnly yes\n"
+        f"\n"
+        f"## Suggested upload command (fill in placeholders)\n"
+        f"ssh-copy-id -i {ssh_key_config.pub_file} <REMOTE_USER>@<REMOTE_HOST>\n"
+        f"## Or upload the public key manually (e.g. via FreeIPA or GitHub web UI).\n"
+        f"\n"
+        f"## Verify\n"
+        f"ssh <ALIAS>\n",
+    )
+    ssh_key_config.record_file.chmod(0o600)
+    LOG_MESSAGE(f"Notes saved to {ssh_key_config.record_file}")
+
+
+##
+## === MAIN ROUTINE
+##
+
+
+def main() -> None:
+    log_messages.configure_logger(write_to_file=True)
     parser = argparse.ArgumentParser(
         prog=SCRIPT_NAME,
         description=(
@@ -78,174 +192,27 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="device the key is from",
     )
-    return parser.parse_args()
-
-
-##
-## === PIPELINE STEPS
-##
-
-
-def ensure_name_is_valid(
-    *,
-    name: str,
-) -> None:
-    valid_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
-    if not valid_pattern.fullmatch(name):
-        FAIL_WITH_MESSAGE(f"`--name` must be alphanumeric, dash, or underscore; got `{name}`.")
-
-
-def collect_inputs(
-    *,
-    name: str,
-    purpose: str,
-    device: str,
-) -> Inputs:
-    LOG_MESSAGE("Resolving inputs")
-    today = datetime.date.today().strftime("%Y-%m-%d")
-    key_file = SSH_CONFIG_DIR / f"id_ed25519_{name}"
-    pub_file = key_file.with_suffix(".pub")
-    record_file = SSH_RECORDS_DIR / f"{name}-{today}.txt"
-    comment = f"for {purpose} from {device} created on {today}"
-    return Inputs(
-        name=name,
-        purpose=purpose,
-        device=device,
-        today=today,
-        comment=comment,
-        key_file=key_file,
-        pub_file=pub_file,
-        record_file=record_file,
-    )
-
-
-def ensure_ssh_dir() -> None:
-    SSH_CONFIG_DIR.mkdir(
-        mode=0o700,
-        exist_ok=True,
-    )
-    SSH_CONFIG_DIR.chmod(0o700)
-    LOG_MESSAGE(f"{SSH_CONFIG_DIR} ok")
-
-
-def print_summary(
-    *,
-    inputs: Inputs,
-) -> None:
-    LOG_MESSAGE("Summary:")
-    LOG_MESSAGE(f"Name: {inputs.name}")
-    LOG_MESSAGE(f"Purpose: {inputs.purpose}")
-    LOG_MESSAGE(f"Device: {inputs.device}")
-    LOG_MESSAGE(f"Date: {inputs.today}")
-    LOG_MESSAGE(f"Key file: {inputs.key_file}")
-    LOG_MESSAGE(f"Comment: {inputs.comment}")
-    LOG_MESSAGE(f"Notes: {inputs.record_file}")
-
-
-def generate_key(
-    *,
-    key_file: Path,
-    comment: str,
-) -> None:
-    command = [
-        "ssh-keygen",
-        "-t",
-        "ed25519",
-        "-a",
-        "100",
-        "-f",
-        str(key_file),
-        "-C",
-        comment,
-    ]
-    succeeded = apply_shell_actions.run_command(
-        args=command,
-        logger_fn=LOG_MESSAGE,
-        description=f"generate ed25519 ssh key at {key_file}",
-        capture_output=False,
-    )
-    if not succeeded:
-        FAIL_WITH_MESSAGE("ssh-keygen failed")
-    key_file.chmod(0o600)
-    LOG_MESSAGE(f"Key created at {key_file}")
-
-
-def write_key_record(
-    *,
-    inputs: Inputs,
-) -> None:
-    SSH_RECORDS_DIR.mkdir(
-        mode=0o700,
-        exist_ok=True,
-    )
-    SSH_RECORDS_DIR.chmod(0o700)
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    public_key = inputs.pub_file.read_text().rstrip("\n")
-    inputs.record_file.write_text(
-        f"# SSH Key Notes: {inputs.name}\n"
-        f"# Created: {timestamp}\n"
-        f"\n"
-        f"## Key files\n"
-        f"{inputs.key_file}   (private; never share)\n"
-        f"{inputs.pub_file}   (public)\n"
-        f"\n"
-        f"## Public key\n"
-        f"{public_key}\n"
-        f"\n"
-        f"## Keygen command\n"
-        f'ssh-keygen -t ed25519 -a 100 -f "{inputs.key_file}" -C "{inputs.comment}"\n'
-        f"\n"
-        f"## Suggested ~/.ssh/config block (fill in placeholders)\n"
-        f"Host <ALIAS>\n"
-        f"  HostName <REMOTE_HOST>\n"
-        f"  User <REMOTE_USER>\n"
-        f"  IdentityFile {inputs.key_file}\n"
-        f"  IdentitiesOnly yes\n"
-        f"\n"
-        f"## Suggested upload command (fill in placeholders)\n"
-        f"ssh-copy-id -i {inputs.pub_file} <REMOTE_USER>@<REMOTE_HOST>\n"
-        f"## Or upload the public key manually (e.g. via FreeIPA or GitHub web UI).\n"
-        f"\n"
-        f"## Verify\n"
-        f"ssh <ALIAS>\n",
-    )
-    inputs.record_file.chmod(0o600)
-    LOG_MESSAGE(f"Notes saved to {inputs.record_file}")
-
-
-##
-## === MAIN ROUTINE
-##
-
-
-def main() -> int:
-    log_messages.configure_logger(write_to_file=True)
-    args = parse_args()
+    args = parser.parse_args()
     arg_name = cast(str, args.name)
     arg_purpose = cast(str, args.purpose)
     arg_device = cast(str, args.device)
-
     ensure_name_is_valid(name=arg_name)
-
-    key_file = SSH_CONFIG_DIR / f"id_ed25519_{arg_name}"
-    if key_file.exists():
-        LOG_MESSAGE(f"Key already exists at {key_file}. Nothing to do.")
-        return 0
-
-    inputs = collect_inputs(
+    file_path = SSH_CONFIG_DIR / f"id_ed25519_{arg_name}"
+    if file_path.exists():
+        FAIL_WITH_MESSAGE(f"SSH-Key already exists at {file_path}.")
+    ssh_key_config = SSHKeyConfig(
         name=arg_name,
         purpose=arg_purpose,
         device=arg_device,
     )
     ensure_ssh_dir()
-    print_summary(inputs=inputs)
+    print_summary(ssh_key_config=ssh_key_config)
     generate_key(
-        key_file=inputs.key_file,
-        comment=inputs.comment,
+        file_path=ssh_key_config.file_path,
+        comment=ssh_key_config.comment,
     )
-    write_key_record(inputs=inputs)
-    LOG_MESSAGE("Done")
-    return 0
+    write_key_record(ssh_key_config=ssh_key_config)
+    LOG_MESSAGE(f"Finished creating {file_path}")
 
 
 ##
