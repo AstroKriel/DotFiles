@@ -49,12 +49,14 @@ DIRS = ProjectDirs(
 
 @dataclass(frozen=True)
 class TargetDirs:
-    """User-side directories where dotfile configs get symlinked."""
+    """Well-known user-side directories referenced by the dotfiles project."""
 
     home: Path
     config: Path
     local_bin: Path
     rules: Path
+    ssh: Path
+    ssh_notes: Path
 
 
 TARGETS = TargetDirs(
@@ -62,6 +64,8 @@ TARGETS = TargetDirs(
     config=_HOME / ".config",
     local_bin=_HOME / ".local" / "bin",
     rules=_HOME / ".rules",
+    ssh=_HOME / ".ssh",
+    ssh_notes=_HOME / ".ssh" / "notes",
 )
 
 ## } MODULE

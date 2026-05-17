@@ -18,15 +18,15 @@ from typing import NoReturn, cast
 ## local
 from local_helpers import apply_shell_actions
 from local_helpers import log_messages
+from local_helpers import project_dirs
 
 ##
 ## === GLOBAL PARAMS
 ##
 
 SCRIPT_NAME = Path(__file__).name
-HOME_DIR = Path.home()
-SSH_DIR = HOME_DIR / ".ssh"
-NOTES_DIR = SSH_DIR / "notes"
+SSH_DIR = project_dirs.TARGETS.ssh
+NOTES_DIR = project_dirs.TARGETS.ssh_notes
 NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
