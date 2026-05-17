@@ -60,7 +60,7 @@ def remove_file_if_exists(
     if target_path.exists() or target_path.is_symlink():
         apply_shell_actions.backup_file(
             target_path=target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
 
@@ -86,7 +86,7 @@ def change_login_shell(
     if current_shell != shell_path:
         apply_shell_actions.run_command(
             args=["chsh", "-s", shell_path],
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             description=f"change login shell to: {shell_path}",
             dry_run=dry_run,
             capture_output=False,
@@ -121,7 +121,7 @@ def remove_symlinks(
     for file_name in all_files:
         apply_shell_actions.remove_symlink(
             target_path=HOME_DIR / f".{file_name}",
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     LOG_MESSAGE(
@@ -154,7 +154,7 @@ def run(
         apply_shell_actions.create_symlink(
             source_path=source_path,
             target_path=target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     ## link config files for the selected shell env
@@ -164,7 +164,7 @@ def run(
         apply_shell_actions.create_symlink(
             source_path=source_path,
             target_path=target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     ## remove config files for other shell envs

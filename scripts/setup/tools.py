@@ -183,7 +183,7 @@ def shallow_clone_repo(
             repo.url,
             str(repo.output),
         ],
-        log=LOG_MESSAGE,
+        logger_fn=LOG_MESSAGE,
         description=f"clone {repo.name} (shallow) under {repo.output}",
         dry_run=dry_run,
     )
@@ -210,7 +210,7 @@ def remove_symlinks(
     for tool in selected_tool_configs.values():
         apply_shell_actions.remove_symlink(
             target_path=tool.target_dir,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     LOG_MESSAGE(
@@ -250,13 +250,13 @@ def run(
         tool = TOOLS[command]
         apply_shell_actions.ensure_dir_exists(
             directory=tool.target_dir.parent,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
         apply_shell_actions.create_symlink(
             source_path=tool.dotfiles_dir,
             target_path=tool.target_dir,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     for command in installed_tool_keys:

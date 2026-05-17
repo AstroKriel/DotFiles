@@ -38,13 +38,13 @@ def link_all_rules(
         target_path = TARGET_DIR / relative_path
         apply_shell_actions.ensure_dir_exists(
             directory=target_path.parent,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
         apply_shell_actions.create_symlink(
             source_path=source_path,
             target_path=target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
 
@@ -68,7 +68,7 @@ def remove_symlinks(
     for target_path in sorted(TARGET_DIR.rglob("*.md")):
         apply_shell_actions.remove_symlink(
             target_path=target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     LOG_MESSAGE(

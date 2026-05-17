@@ -20,16 +20,16 @@ from local_helpers import log_messages
 def run_command(
     *,
     args: list[str],
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     description: str,
     dry_run: bool = False,
     capture_output: bool = True,
 ) -> bool:
     """Run a shell command with logging; return `True` on success, `False` on failure."""
     if dry_run:
-        log(f"[dry-run] Would run: {description}")
+        logger_fn(f"[dry-run] Would run: {description}")
         return True
-    log(f"Running: {description}")
+    logger_fn(f"Running: {description}")
     try:
         subprocess.run(
             args=args,
@@ -37,39 +37,39 @@ def run_command(
             capture_output=capture_output,
             text=capture_output,
         )
-        log(f"Done: {description}")
+        logger_fn(f"Done: {description}")
         return True
     except subprocess.CalledProcessError as error:
         stderr_value = cast(object, error.stderr)
         stderr = stderr_value if isinstance(stderr_value, str) else ""
         error_output = stderr.strip() if (capture_output and stderr) else "(no output captured)"
-        log(f"Failed: {description}\n{error_output}")
+        logger_fn(f"Failed: {description}\n{error_output}")
         return False
 
 
 def ensure_dir_exists(
     *,
     directory: Path,
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     dry_run: bool = False,
 ) -> None:
     """Ensure that the directory exists; create it if it does not."""
     if directory.exists():
         return
     if dry_run:
-        log(f"[dry-run] Would create directory: {directory}")
+        logger_fn(f"[dry-run] Would create directory: {directory}")
     else:
         directory.mkdir(
             parents=True,
             exist_ok=True,
         )
-        log(f"Created directory: {directory}")
+        logger_fn(f"Created directory: {directory}")
 
 
 def backup_file(
     *,
     target_path: Path,
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     dry_run: bool = False,
 ) -> Path | None:
     """
@@ -83,27 +83,27 @@ def backup_file(
     if target_path.is_symlink():
         try:
             resolved = target_path.resolve()
-            log(
+            logger_fn(
                 log_messages.format_dry_run(
                     message=f"{target_path} (symlink) -> {resolved}",
                     dry_run=dry_run,
                 ),
             )
         except Exception as error:
-            log(f"Warning: failed to resolve symlink {target_path}: {error}")
+            logger_fn(f"Warning: failed to resolve symlink {target_path}: {error}")
         if dry_run:
-            log(f"[dry-run] Would remove symlink: {target_path}")
+            logger_fn(f"[dry-run] Would remove symlink: {target_path}")
         else:
             target_path.unlink()
-            log(f"Removed symlink: {target_path}")
+            logger_fn(f"Removed symlink: {target_path}")
         return None
     backup_path = _rename_with_timestamp(
         target_path=target_path,
-        log=log,
+        logger_fn=logger_fn,
         dry_run=dry_run,
     )
     if backup_path:
-        log(
+        logger_fn(
             log_messages.format_dry_run(
                 message=f"{target_path} -> {backup_path}",
                 dry_run=dry_run,
@@ -116,18 +116,18 @@ def create_symlink(
     *,
     source_path: Path,
     target_path: Path,
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     dry_run: bool = False,
 ) -> None:
     """Create a symlink from `target_path` to `source_path`; back up existing files first."""
     if not source_path.exists():
-        log(f"Skipping. {source_path} does not exist.")
+        logger_fn(f"Skipping. {source_path} does not exist.")
         return
     if _path_is_missing(target_path):
         _make_symlink(
             source_path=source_path,
             target_path=target_path,
-            log=log,
+            logger_fn=logger_fn,
             dry_run=dry_run,
         )
         return
@@ -135,7 +135,7 @@ def create_symlink(
             target_path=target_path,
             source_path=source_path,
     ):
-        log(
+        logger_fn(
             log_messages.format_dry_run(
                 message=f"Already correctly linked: {target_path}",
                 dry_run=dry_run,
@@ -143,26 +143,26 @@ def create_symlink(
         )
         return
     if _symlink_is_broken(target_path):
-        log(f"Skipping. {target_path} is a broken symlink.")
+        logger_fn(f"Skipping. {target_path} is a broken symlink.")
         return
     if not _types_match(
             source_path=source_path,
             target_path=target_path,
     ):
-        log(
+        logger_fn(
             f"Skipping due to a type mismatch. {target_path} is {_get_path_type(target_path)}, "
             f"but source is {_get_path_type(source_path)}.",
         )
         return
     backup_file(
         target_path=target_path,
-        log=log,
+        logger_fn=logger_fn,
         dry_run=dry_run,
     )
     _make_symlink(
         source_path=source_path,
         target_path=target_path,
-        log=log,
+        logger_fn=logger_fn,
         dry_run=dry_run,
     )
 
@@ -170,17 +170,17 @@ def create_symlink(
 def remove_symlink(
     *,
     target_path: Path,
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     dry_run: bool = False,
 ) -> None:
     """Remove a symlink at the given path; do nothing if the path is not a symlink."""
     if not target_path.is_symlink():
         return
     if dry_run:
-        log(f"[dry-run] Would remove symlink: {target_path}")
+        logger_fn(f"[dry-run] Would remove symlink: {target_path}")
     else:
         target_path.unlink()
-        log(f"Removed symlink: {target_path}")
+        logger_fn(f"Removed symlink: {target_path}")
 
 
 ##
@@ -191,7 +191,7 @@ def remove_symlink(
 def _rename_with_timestamp(
     *,
     target_path: Path,
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     dry_run: bool = False,
 ) -> Path | None:
     """Rename a file or directory in place by appending a timestamp; return the new path or None."""
@@ -200,9 +200,9 @@ def _rename_with_timestamp(
     timestamp = log_messages.get_timestamp().replace(" ", ".")
     backup_path = target_path.with_stem(f"{target_path.stem}.{timestamp}")
     if dry_run:
-        log(f"[dry-run] Would rename {target_path} -> {backup_path}")
+        logger_fn(f"[dry-run] Would rename {target_path} -> {backup_path}")
     else:
-        log(f"Renaming {target_path} -> {backup_path}")
+        logger_fn(f"Renaming {target_path} -> {backup_path}")
         target_path.rename(backup_path)
     return backup_path
 
@@ -238,15 +238,15 @@ def _make_symlink(
     *,
     source_path: Path,
     target_path: Path,
-    log: Callable[[str], None],
+    logger_fn: Callable[[str], None],
     dry_run: bool,
 ) -> None:
     """Create a symlink from `target_path` to `source_path`."""
     if dry_run:
-        log(f"[dry-run] Would symlink: {source_path} -> {target_path}")
+        logger_fn(f"[dry-run] Would symlink: {source_path} -> {target_path}")
     else:
         target_path.symlink_to(source_path)
-        log(f"Symlinked: {source_path} -> {target_path}")
+        logger_fn(f"Symlinked: {source_path} -> {target_path}")
 
 
 def _already_linked_correctly(

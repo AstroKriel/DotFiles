@@ -61,13 +61,13 @@ def setup_extra(
         return
     apply_shell_actions.ensure_dir_exists(
         directory=extra.target_path.parent,
-        log=LOG_MESSAGE,
+        logger_fn=LOG_MESSAGE,
         dry_run=dry_run,
     )
     apply_shell_actions.create_symlink(
         source_path=extra.source_path,
         target_path=extra.target_path,
-        log=LOG_MESSAGE,
+        logger_fn=LOG_MESSAGE,
         dry_run=dry_run,
     )
 
@@ -124,7 +124,7 @@ def remove_symlinks(
     for extra in selected_extra_configs.values():
         apply_shell_actions.remove_symlink(
             target_path=extra.target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     LOG_MESSAGE(

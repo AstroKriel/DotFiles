@@ -159,7 +159,7 @@ def generate_key(
     ]
     succeeded = apply_shell_actions.run_command(
         args=command,
-        log=LOG_MESSAGE,
+        logger_fn=LOG_MESSAGE,
         description=f"generate ed25519 ssh key at {key_file}",
         capture_output=False,
     )

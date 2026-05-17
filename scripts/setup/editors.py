@@ -189,7 +189,7 @@ def install_extensions(
     for ext in extensions:
         apply_shell_actions.run_command(
             args=[command, "--install-extension", ext],
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             description=f"install extension: {ext}",
             dry_run=dry_run,
         )
@@ -212,7 +212,7 @@ def shallow_clone_repo(
             repo.url,
             str(repo.output),
         ],
-        log=LOG_MESSAGE,
+        logger_fn=LOG_MESSAGE,
         description=f"clone {repo.name} (shallow) under {repo.output}",
         dry_run=dry_run,
     )
@@ -228,7 +228,7 @@ def run_doom_sync(
         return
     apply_shell_actions.run_command(
         args=[str(doom_bin), "sync"],
-        log=LOG_MESSAGE,
+        logger_fn=LOG_MESSAGE,
         description="doom sync",
         dry_run=dry_run,
         capture_output=False,
@@ -272,13 +272,13 @@ def setup_editor(
     if editor.files is None:
         apply_shell_actions.ensure_dir_exists(
             directory=editor.target_dir.parent,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
         apply_shell_actions.create_symlink(
             source_path=editor.dotfiles_dir,
             target_path=editor.target_dir,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
     else:
@@ -328,14 +328,14 @@ def setup_editor_files(
         ## ensure target directory exists
         apply_shell_actions.ensure_dir_exists(
             directory=editor.target_dir,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
         ## symlink merged config
         apply_shell_actions.create_symlink(
             source_path=output_path,
             target_path=target_path,
-            log=LOG_MESSAGE,
+            logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
 
@@ -393,14 +393,14 @@ def remove_symlinks(
         if editor.files is None:
             apply_shell_actions.remove_symlink(
                 target_path=editor.target_dir,
-                log=LOG_MESSAGE,
+                logger_fn=LOG_MESSAGE,
                 dry_run=dry_run,
             )
         else:
             for file_name in editor.files:
                 apply_shell_actions.remove_symlink(
                     target_path=editor.target_dir / f"{file_name}.json",
-                    log=LOG_MESSAGE,
+                    logger_fn=LOG_MESSAGE,
                     dry_run=dry_run,
                 )
     LOG_MESSAGE(
