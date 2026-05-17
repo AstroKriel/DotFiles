@@ -31,6 +31,7 @@ class ProjectDirs:
     editors: Path
     tools: Path
     rules: Path
+    ssh_keys: Path
 
 
 DIRS = ProjectDirs(
@@ -40,6 +41,7 @@ DIRS = ProjectDirs(
     editors=_PROJECT_ROOT / "configs" / "editors",
     tools=_PROJECT_ROOT / "configs" / "tools",
     rules=_PROJECT_ROOT / "configs" / "rules",
+    ssh_keys=_PROJECT_ROOT / "ssh_keys",
 )
 
 ##
@@ -56,7 +58,6 @@ class TargetDirs:
     local_bin: Path
     rules: Path
     ssh: Path
-    ssh_notes: Path
 
 
 TARGETS = TargetDirs(
@@ -65,7 +66,6 @@ TARGETS = TargetDirs(
     local_bin=_HOME / ".local" / "bin",
     rules=_HOME / ".rules",
     ssh=_HOME / ".ssh",
-    ssh_notes=_HOME / ".ssh" / "notes",
 )
 
 ## } MODULE

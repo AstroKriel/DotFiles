@@ -11,11 +11,14 @@ import sys
 from pathlib import Path
 from typing import Callable, NoReturn
 
+## local
+from local_helpers import project_dirs
+
 ##
 ## === MODULE CONFIG
 ##
 
-LOG_FILE = Path.home() / "dotfiles_log.txt"
+LOG_FILE = project_dirs.DIRS.root / "history.log"
 _should_write_to_file = True  # dry-runs auto-disable this
 
 ##

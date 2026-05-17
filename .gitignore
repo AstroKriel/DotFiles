@@ -10,4 +10,8 @@ configs/tools/tmux/plugins/
 ## local system profile selector
 this-system.toml
 
+## generated outputs
+history.log
+ssh_keys/
+
 ## .
