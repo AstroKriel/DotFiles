@@ -27,7 +27,6 @@ from local_helpers import project_dirs
 SCRIPT_NAME = Path(__file__).name
 SSH_DIR = project_dirs.TARGETS.ssh
 NOTES_DIR = project_dirs.TARGETS.ssh_notes
-NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
 
@@ -41,28 +40,6 @@ def fail(
 ) -> NoReturn:
     print(f"ERROR: {message}", file=sys.stderr)
     sys.exit(1)
-
-
-def prompt_required(
-    label: str,
-) -> str:
-    while True:
-        response = input(f"{label}: ").strip()
-        if response:
-            return response
-        _log_message("value required")
-
-
-def prompt_yes_no(
-    label: str,
-    *,
-    default_yes: bool = False,
-) -> bool:
-    suffix = "[Y/n]" if default_yes else "[y/N]"
-    response = input(f"{label} {suffix}: ").strip().lower()
-    if not response:
-        return default_yes
-    return response.startswith("y")
 
 
 ##
@@ -99,9 +76,20 @@ def parse_args() -> argparse.Namespace:
             "~/.ssh/config or pushes the key to any remote."
         ),
     )
-    parser.add_argument("--name", help="suffix for ~/.ssh/id_ed25519_NAME")
-    parser.add_argument("--purpose", help="short description of what the key is for")
-    parser.add_argument("--device", help="device the key is from (default: hostname)")
+    parser.add_argument(
+        "--name",
+        required=True,
+        help="suffix for ~/.ssh/id_ed25519_NAME",
+    )
+    parser.add_argument(
+        "--purpose",
+        required=True,
+        help="short description of what the key is for",
+    )
+    parser.add_argument(
+        "--device",
+        help="device the key is from (default: hostname)",
+    )
     return parser.parse_args()
 
 
@@ -110,25 +98,20 @@ def parse_args() -> argparse.Namespace:
 ##
 
 
-def resolve_name(
-    *,
-    arg_name: str | None,
-) -> str:
-    name = arg_name or prompt_required("Unique name (suffix for id_ed25519_<name>)")
-    if not NAME_PATTERN.fullmatch(name):
-        fail(f"name must be alphanumeric, dash, or underscore (got: {name})")
-    return name
+def ensure_name_is_valid(
+    name: str,
+) -> None:
+    if not re.fullmatch(r"^[A-Za-z0-9_-]+$", name):
+        fail(f"`--name` must be alphanumeric, dash, or underscore; got `{name}`.")
 
 
 def collect_inputs(
     *,
     name: str,
-    arg_purpose: str | None,
-    arg_device: str | None,
+    purpose: str,
+    device: str,
 ) -> Inputs:
     _log_message("Resolving inputs")
-    purpose = arg_purpose or prompt_required("Purpose")
-    device = arg_device or socket.gethostname()
     today = datetime.date.today().strftime("%Y-%m-%d")
     key_file = SSH_DIR / f"id_ed25519_{name}"
     pub_file = key_file.with_suffix(".pub")
@@ -167,11 +150,6 @@ def print_summary(
     print(f"  Key file: {inputs.key_file}")
     print(f"  Comment:  {inputs.comment}")
     print(f"  Notes:    {inputs.notes_file}")
-
-
-def confirm_or_exit() -> None:
-    if not prompt_yes_no("Proceed?"):
-        fail("aborted")
 
 
 def generate_key(
@@ -252,24 +230,24 @@ def write_notes(
 
 def main() -> int:
     args = parse_args()
-    arg_name = cast(str | None, args.name)
-    arg_purpose = cast(str | None, args.purpose)
+    arg_name = cast(str, args.name)
+    arg_purpose = cast(str, args.purpose)
     arg_device = cast(str | None, args.device)
 
-    name = resolve_name(arg_name=arg_name)
-    key_file = SSH_DIR / f"id_ed25519_{name}"
+    ensure_name_is_valid(arg_name)
+
+    key_file = SSH_DIR / f"id_ed25519_{arg_name}"
     if key_file.exists():
         _log_message(f"Key already exists at {key_file}. Nothing to do.")
         return 0
 
     inputs = collect_inputs(
-        name=name,
-        arg_purpose=arg_purpose,
-        arg_device=arg_device,
+        name=arg_name,
+        purpose=arg_purpose,
+        device=arg_device or socket.gethostname(),
     )
     ensure_ssh_dir()
     print_summary(inputs=inputs)
-    confirm_or_exit()
     generate_key(
         key_file=inputs.key_file,
         comment=inputs.comment,
