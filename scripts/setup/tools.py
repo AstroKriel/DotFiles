@@ -21,7 +21,6 @@ from local_helpers import project_dirs
 ## === TOOL REGISTRY
 ##
 
-HOME_DIR = project_dirs.TARGETS.home
 SCRIPT_NAME = Path(__file__).name
 TOOLS_DIR = project_dirs.DIRS.tools
 CONFIG_DIR = project_dirs.TARGETS.config
@@ -30,39 +29,23 @@ LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 
 
 @dataclass
-class RepoConfig:
-    name: str
-    url: str
-    output: Path
-
-
-@dataclass
 class ToolConfig:
     name: str
-    brew: str
     dotfiles_dir: Path
     target_dir: Path
     mac_app: str | None = None
-    clone_repo: RepoConfig | None = None
 
 
 TOOLS: dict[str, ToolConfig] = {
     "tmux":
     ToolConfig(
         name="Tmux",
-        brew="tmux",
         dotfiles_dir=TOOLS_DIR / "tmux",
         target_dir=CONFIG_DIR / "tmux",
-        clone_repo=RepoConfig(
-            name="TPM",
-            url="https://github.com/tmux-plugins/tpm",
-            output=CONFIG_DIR / "tmux" / "plugins" / "tpm",
-        ),
     ),
     "kitty":
     ToolConfig(
         name="Kitty terminal",
-        brew="kitty --cask",
         mac_app="kitty.app",
         dotfiles_dir=TOOLS_DIR / "kitty",
         target_dir=CONFIG_DIR / "kitty",
@@ -70,7 +53,6 @@ TOOLS: dict[str, ToolConfig] = {
     "ghostty":
     ToolConfig(
         name="Ghostty terminal",
-        brew="ghostty --cask",
         mac_app="Ghostty.app",
         dotfiles_dir=TOOLS_DIR / "ghostty",
         target_dir=CONFIG_DIR / "ghostty",
@@ -78,7 +60,6 @@ TOOLS: dict[str, ToolConfig] = {
     "yazi":
     ToolConfig(
         name="Yazi",
-        brew="yazi ffmpeg",
         dotfiles_dir=TOOLS_DIR / "yazi",
         target_dir=CONFIG_DIR / "yazi",
     ),
@@ -148,45 +129,13 @@ def check_installed_tools(
             )
             installed_tool_keys.add(command)
         else:
-            message = (
-                f"{tool.name} was not found in your `$PATH`.\n"
-                f"Install it via: `brew install {tool.brew}`"
-            )
             LOG_MESSAGE(
                 log_messages.format_dry_run(
-                    message=message,
+                    message=f"{tool.name} was not found in your `$PATH`.",
                     dry_run=dry_run,
                 ),
             )
     return installed_tool_keys
-
-
-def shallow_clone_repo(
-    *,
-    repo: RepoConfig,
-    dry_run: bool,
-):
-    if repo.output.exists():
-        LOG_MESSAGE(
-            log_messages.format_dry_run(
-                message=f"{repo.name} already exists under: {repo.output}",
-                dry_run=dry_run,
-            ),
-        )
-        return
-    apply_shell_actions.run_command(
-        args=[
-            "git",
-            "clone",
-            "--depth",
-            "1",
-            repo.url,
-            str(repo.output),
-        ],
-        logger_fn=LOG_MESSAGE,
-        description=f"clone {repo.name} (shallow) under {repo.output}",
-        dry_run=dry_run,
-    )
 
 
 ##
@@ -259,13 +208,6 @@ def run(
             logger_fn=LOG_MESSAGE,
             dry_run=dry_run,
         )
-    for command in installed_tool_keys:
-        tool = TOOLS[command]
-        if tool.clone_repo is not None:
-            shallow_clone_repo(
-                repo=tool.clone_repo,
-                dry_run=dry_run,
-            )
     LOG_MESSAGE(
         log_messages.format_dry_run(
             message="Finished setting up tool configs",
