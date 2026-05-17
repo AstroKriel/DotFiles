@@ -27,7 +27,7 @@ LOG_FILE = _PROJECT_ROOT / "history.log"
 
 
 @dataclass(frozen=True)
-class ProjectDirs:
+class SourceDirs:
     """Well-known directories within the dotfiles project."""
 
     root: Path
@@ -36,17 +36,17 @@ class ProjectDirs:
     editors: Path
     tools: Path
     rules: Path
-    key_records: Path
+    ssh: Path
 
 
-DIRS = ProjectDirs(
+SOURCES = SourceDirs(
     root=_PROJECT_ROOT,
     shell=_PROJECT_ROOT / "configs" / "shell",
     extras=_PROJECT_ROOT / "configs" / "extras",
     editors=_PROJECT_ROOT / "configs" / "editors",
     tools=_PROJECT_ROOT / "configs" / "tools",
     rules=_PROJECT_ROOT / "configs" / "rules",
-    key_records=_PROJECT_ROOT / "key_records",
+    ssh=_PROJECT_ROOT / "ssh_keys",
 )
 
 ##

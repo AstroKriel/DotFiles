@@ -23,8 +23,8 @@ from local_helpers import project_dirs
 ##
 
 SCRIPT_NAME = Path(__file__).name
-SSH_DIR = project_dirs.TARGETS.ssh
-KEY_RECORDS_DIR = project_dirs.DIRS.key_records
+SSH_CONFIG_DIR = project_dirs.TARGETS.ssh
+SSH_RECORDS_DIR = project_dirs.SOURCES.ssh
 
 LOG_MESSAGE = log_messages.make_logger_fn(SCRIPT_NAME)
 FAIL_WITH_MESSAGE = log_messages.make_fail_fn(SCRIPT_NAME)
@@ -103,9 +103,9 @@ def collect_inputs(
 ) -> Inputs:
     LOG_MESSAGE("Resolving inputs")
     today = datetime.date.today().strftime("%Y-%m-%d")
-    key_file = SSH_DIR / f"id_ed25519_{name}"
+    key_file = SSH_CONFIG_DIR / f"id_ed25519_{name}"
     pub_file = key_file.with_suffix(".pub")
-    record_file = KEY_RECORDS_DIR / f"{name}-{today}.txt"
+    record_file = SSH_RECORDS_DIR / f"{name}-{today}.txt"
     comment = f"for {purpose} from {device} created on {today}"
     return Inputs(
         name=name,
@@ -120,12 +120,12 @@ def collect_inputs(
 
 
 def ensure_ssh_dir() -> None:
-    SSH_DIR.mkdir(
+    SSH_CONFIG_DIR.mkdir(
         mode=0o700,
         exist_ok=True,
     )
-    SSH_DIR.chmod(0o700)
-    LOG_MESSAGE(f"{SSH_DIR} ok")
+    SSH_CONFIG_DIR.chmod(0o700)
+    LOG_MESSAGE(f"{SSH_CONFIG_DIR} ok")
 
 
 def print_summary(
@@ -174,11 +174,11 @@ def write_key_record(
     *,
     inputs: Inputs,
 ) -> None:
-    KEY_RECORDS_DIR.mkdir(
+    SSH_RECORDS_DIR.mkdir(
         mode=0o700,
         exist_ok=True,
     )
-    KEY_RECORDS_DIR.chmod(0o700)
+    SSH_RECORDS_DIR.chmod(0o700)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     public_key = inputs.pub_file.read_text().rstrip("\n")
     inputs.record_file.write_text(
@@ -227,7 +227,7 @@ def main() -> int:
 
     ensure_name_is_valid(name=arg_name)
 
-    key_file = SSH_DIR / f"id_ed25519_{arg_name}"
+    key_file = SSH_CONFIG_DIR / f"id_ed25519_{arg_name}"
     if key_file.exists():
         LOG_MESSAGE(f"Key already exists at {key_file}. Nothing to do.")
         return 0

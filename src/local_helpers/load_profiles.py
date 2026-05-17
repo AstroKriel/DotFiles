@@ -16,7 +16,7 @@ from local_helpers import project_dirs
 ## === PROFILE CONFIG
 ##
 
-THIS_SYSTEM_PROFILE_PATH = project_dirs.DIRS.root / "this-system.toml"
+THIS_SYSTEM_PROFILE_PATH = project_dirs.SOURCES.root / "this-system.toml"
 
 ##
 ## === PROFILE TYPES
