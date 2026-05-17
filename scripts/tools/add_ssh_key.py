@@ -45,7 +45,9 @@ class SSHKeyConfig:
     public_file: Path = field(init=False)
     record_file: Path = field(init=False)
 
-    def __post_init__(self) -> None:
+    def __post_init__(
+        self,
+    ) -> None:
         self.today = datetime.date.today().strftime("%Y-%m-%d")
         self.comment = f"for {self.purpose} from {self.device} created on {self.today}"
         self.private_file = SSH_CONFIG_DIR / f"id_ed25519_{self.name}"
@@ -115,7 +117,6 @@ def generate_key(
     if not succeeded:
         FAIL_WITH_MESSAGE("ssh-keygen failed")
     private_file.chmod(0o600)
-    LOG_MESSAGE(f"Key created at {private_file}")
 
 
 def write_key_record(
@@ -148,7 +149,7 @@ def write_key_record(
         f"\tHostName <REMOTE_HOST>\n"
         f"\tUser <REMOTE_USER>\n"
         f"\tIdentityFile {ssh_key_config.private_file}\n"
-        f"\tIdentitiesOnly yes\n"
+        f"\tIdentitiesOnly yes\n",
     )
     ssh_key_config.record_file.chmod(0o600)
     LOG_MESSAGE(f"Record saved to {ssh_key_config.record_file}")
