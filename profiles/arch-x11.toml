@@ -34,5 +34,5 @@ extras = [
   "arch-x11/window-management/center-window",
   "arch-x11/window-management/tile-window",
   "arch-x11/zathura/zathurarc",
-  "personal-machine/path-aliases.sh",
+  "pc/path-aliases.sh",
 ]
