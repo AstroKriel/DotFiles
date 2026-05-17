@@ -156,15 +156,15 @@ def check_alias_collision(alias: str) -> None:
 
 
 def generate_key(key_file: Path, comment: str) -> None:
-    cmd = [
+    command = [
         "ssh-keygen",
         "-t", "ed25519",
         "-a", "100",
         "-f", str(key_file),
         "-C", comment,
     ]
-    info(" ".join(cmd))
-    subprocess.run(cmd, check=True)
+    info(" ".join(command))
+    subprocess.run(command, check=True)
     key_file.chmod(0o600)
     success(f"key created at {key_file}")
 
@@ -189,8 +189,8 @@ def maybe_append_config(config_block: str) -> bool:
     if not prompt_yes_no(f"Append this block to {CONFIG_FILE}?", default_yes=True):
         info("skipped (block saved to notes file)")
         return False
-    with CONFIG_FILE.open("a") as fp:
-        fp.write(f"\n{config_block}\n")
+    with CONFIG_FILE.open("a") as config_stream:
+        config_stream.write(f"\n{config_block}\n")
     CONFIG_FILE.chmod(0o600)
     success(f"appended to {CONFIG_FILE}")
     return True
@@ -225,9 +225,9 @@ def do_upload(
         if not (host and user):
             fail("ssh-copy-id needs --host and --user")
         heading("Step 3: Push key with ssh-copy-id")
-        cmd = ["ssh-copy-id", "-i", str(pub_file), f"{user}@{host}"]
-        info(" ".join(cmd))
-        result = subprocess.run(cmd, check=False)
+        command = ["ssh-copy-id", "-i", str(pub_file), f"{user}@{host}"]
+        info(" ".join(command))
+        result = subprocess.run(command, check=False)
         if result.returncode == 0:
             success("key pushed")
             return f"pushed via ssh-copy-id to {user}@{host}"
@@ -261,7 +261,7 @@ def write_notes(
     config_block: str,
     config_appended: bool,
     upload_result: str,
-    verify_cmd: str,
+    verify_command: str,
 ) -> None:
     NOTES_DIR.mkdir(mode=0o700, exist_ok=True)
     NOTES_DIR.chmod(0o700)
@@ -293,7 +293,7 @@ def write_notes(
         f"{upload_result}\n"
         f"\n"
         f"## Verify\n"
-        f"{verify_cmd}\n",
+        f"{verify_command}\n",
     )
     notes_file.chmod(0o600)
     success(f"notes saved to {notes_file}")
@@ -382,11 +382,11 @@ def main() -> None:
     )
 
     if host and config_appended:
-        verify_cmd = f"ssh {alias}"
+        verify_command = f"ssh {alias}"
     elif host:
-        verify_cmd = f"ssh -i {key_file} {user}@{host}"
+        verify_command = f"ssh -i {key_file} {user}@{host}"
     else:
-        verify_cmd = "(no remote configured)"
+        verify_command = "(no remote configured)"
 
     heading("Step 4: Write notes")
     write_notes(
@@ -398,11 +398,11 @@ def main() -> None:
         config_block=config_block,
         config_appended=config_appended,
         upload_result=upload_result,
-        verify_cmd=verify_cmd,
+        verify_command=verify_command,
     )
 
     heading("Done")
-    print(f"Run `{verify_cmd}` to test.")
+    print(f"Run `{verify_command}` to test.")
 
 
 ##
