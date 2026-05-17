@@ -87,10 +87,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def ensure_name_is_valid(
+    *,
     name: str,
 ) -> None:
-    name_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
-    if not name_pattern.fullmatch(name):
+    valid_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+    if not valid_pattern.fullmatch(name):
         FAIL_WITH_MESSAGE(f"`--name` must be alphanumeric, dash, or underscore; got `{name}`.")
 
 
@@ -132,13 +133,13 @@ def print_summary(
     inputs: Inputs,
 ) -> None:
     LOG_MESSAGE("Summary:")
-    print(f"  Name:     {inputs.name}")
-    print(f"  Purpose:  {inputs.purpose}")
-    print(f"  Device:   {inputs.device}")
-    print(f"  Date:     {inputs.today}")
-    print(f"  Key file: {inputs.key_file}")
-    print(f"  Comment:  {inputs.comment}")
-    print(f"  Notes:    {inputs.notes_file}")
+    LOG_MESSAGE(f"Name: {inputs.name}")
+    LOG_MESSAGE(f"Purpose: {inputs.purpose}")
+    LOG_MESSAGE(f"Device: {inputs.device}")
+    LOG_MESSAGE(f"Date: {inputs.today}")
+    LOG_MESSAGE(f"Key file: {inputs.key_file}")
+    LOG_MESSAGE(f"Comment: {inputs.comment}")
+    LOG_MESSAGE(f"Notes: {inputs.notes_file}")
 
 
 def generate_key(
@@ -218,12 +219,13 @@ def write_notes(
 
 
 def main() -> int:
+    log_messages.configure_logger(write_to_file=True)
     args = parse_args()
     arg_name = cast(str, args.name)
     arg_purpose = cast(str, args.purpose)
     arg_device = cast(str | None, args.device)
 
-    ensure_name_is_valid(arg_name)
+    ensure_name_is_valid(name=arg_name)
 
     key_file = SSH_DIR / f"id_ed25519_{arg_name}"
     if key_file.exists():
