@@ -9,12 +9,15 @@ import argparse
 import datetime
 import re
 import socket
-import subprocess
 import sys
 
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NoReturn, cast
+
+## local
+from local_helpers import apply_shell_actions
+from local_helpers import log_messages
 
 ##
 ## === GLOBAL PARAMS
@@ -26,55 +29,18 @@ SSH_DIR = HOME_DIR / ".ssh"
 NOTES_DIR = SSH_DIR / "notes"
 NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 
-## --- colours, only when stdout is a tty
-_IS_TTY = sys.stdout.isatty()
-_BOLD = "\033[1m" if _IS_TTY else ""
-_CYAN = "\033[36m" if _IS_TTY else ""
-_YELLOW = "\033[33m" if _IS_TTY else ""
-_RED = "\033[31m" if _IS_TTY else ""
-_GREEN = "\033[32m" if _IS_TTY else ""
-_DIM = "\033[2m" if _IS_TTY else ""
-_RESET = "\033[0m" if _IS_TTY else ""
+_log_message = log_messages.make_logger(SCRIPT_NAME)
 
 ##
-## === OUTPUT HELPERS
+## === HELPERS
 ##
-
-
-def heading(
-    message: str,
-) -> None:
-    print(f"\n{_BOLD}{_CYAN}==> {message}{_RESET}")
-
-
-def info(
-    message: str,
-) -> None:
-    print(f"{_DIM}{message}{_RESET}")
-
-
-def warn(
-    message: str,
-) -> None:
-    print(f"{_YELLOW}!! {message}{_RESET}", file=sys.stderr)
-
-
-def success(
-    message: str,
-) -> None:
-    print(f"{_GREEN}OK{_RESET} {message}")
 
 
 def fail(
     message: str,
 ) -> NoReturn:
-    print(f"{_RED}ERROR: {message}{_RESET}", file=sys.stderr)
+    print(f"ERROR: {message}", file=sys.stderr)
     sys.exit(1)
-
-
-##
-## === PROMPT HELPERS
-##
 
 
 def prompt_required(
@@ -84,7 +50,7 @@ def prompt_required(
         response = input(f"{label}: ").strip()
         if response:
             return response
-        warn("value required")
+        _log_message("value required")
 
 
 def prompt_yes_no(
@@ -160,7 +126,7 @@ def collect_inputs(
     arg_purpose: str | None,
     arg_device: str | None,
 ) -> Inputs:
-    heading("Gather inputs")
+    _log_message("Resolving inputs")
     purpose = arg_purpose or prompt_required("Purpose")
     device = arg_device or socket.gethostname()
     today = datetime.date.today().strftime("%Y-%m-%d")
@@ -181,20 +147,19 @@ def collect_inputs(
 
 
 def ensure_ssh_dir() -> None:
-    heading("Pre-flight")
     SSH_DIR.mkdir(
         mode=0o700,
         exist_ok=True,
     )
     SSH_DIR.chmod(0o700)
-    info(f"{SSH_DIR} ok")
+    _log_message(f"{SSH_DIR} ok")
 
 
 def print_summary(
     *,
     inputs: Inputs,
 ) -> None:
-    heading("Summary")
+    _log_message("Summary:")
     print(f"  Name:     {inputs.name}")
     print(f"  Purpose:  {inputs.purpose}")
     print(f"  Device:   {inputs.device}")
@@ -214,7 +179,6 @@ def generate_key(
     key_file: Path,
     comment: str,
 ) -> None:
-    heading("Generate key")
     command = [
         "ssh-keygen",
         "-t",
@@ -226,20 +190,22 @@ def generate_key(
         "-C",
         comment,
     ]
-    info(" ".join(command))
-    subprocess.run(
-        command,
-        check=True,
+    succeeded = apply_shell_actions.run_command(
+        args=command,
+        script_name=SCRIPT_NAME,
+        description=f"generate ed25519 ssh key at {key_file}",
+        capture_output=False,
     )
+    if not succeeded:
+        fail("ssh-keygen failed")
     key_file.chmod(0o600)
-    success(f"key created at {key_file}")
+    _log_message(f"Key created at {key_file}")
 
 
 def write_notes(
     *,
     inputs: Inputs,
 ) -> None:
-    heading("Write notes")
     NOTES_DIR.mkdir(
         mode=0o700,
         exist_ok=True,
@@ -276,7 +242,7 @@ def write_notes(
         f"ssh <ALIAS>\n",
     )
     inputs.notes_file.chmod(0o600)
-    success(f"notes saved to {inputs.notes_file}")
+    _log_message(f"Notes saved to {inputs.notes_file}")
 
 
 ##
@@ -293,7 +259,7 @@ def main() -> int:
     name = resolve_name(arg_name=arg_name)
     key_file = SSH_DIR / f"id_ed25519_{name}"
     if key_file.exists():
-        info(f"Key already exists at {key_file}. Nothing to do.")
+        _log_message(f"Key already exists at {key_file}. Nothing to do.")
         return 0
 
     inputs = collect_inputs(
@@ -309,7 +275,7 @@ def main() -> int:
         comment=inputs.comment,
     )
     write_notes(inputs=inputs)
-    heading("Done")
+    _log_message("Done")
     return 0
 
 
