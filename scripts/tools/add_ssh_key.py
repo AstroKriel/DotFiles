@@ -41,23 +41,33 @@ _RESET = "\033[0m" if _IS_TTY else ""
 ##
 
 
-def heading(message: str) -> None:
+def heading(
+    message: str,
+) -> None:
     print(f"\n{_BOLD}{_CYAN}==> {message}{_RESET}")
 
 
-def info(message: str) -> None:
+def info(
+    message: str,
+) -> None:
     print(f"{_DIM}{message}{_RESET}")
 
 
-def warn(message: str) -> None:
+def warn(
+    message: str,
+) -> None:
     print(f"{_YELLOW}!! {message}{_RESET}", file=sys.stderr)
 
 
-def success(message: str) -> None:
+def success(
+    message: str,
+) -> None:
     print(f"{_GREEN}OK{_RESET} {message}")
 
 
-def fail(message: str) -> NoReturn:
+def fail(
+    message: str,
+) -> NoReturn:
     print(f"{_RED}ERROR: {message}{_RESET}", file=sys.stderr)
     sys.exit(1)
 
@@ -134,7 +144,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def ensure_ssh_dir() -> None:
-    SSH_DIR.mkdir(mode=0o700, exist_ok=True)
+    SSH_DIR.mkdir(
+        mode=0o700,
+        exist_ok=True,
+    )
     SSH_DIR.chmod(0o700)
 
 
@@ -151,7 +164,9 @@ def check_key_collision(
     pub_file.unlink(missing_ok=True)
 
 
-def check_alias_collision(alias: str) -> None:
+def check_alias_collision(
+    alias: str,
+) -> None:
     if not CONFIG_FILE.exists():
         return
     pattern = re.compile(rf"^\s*Host\s+{re.escape(alias)}(\s|$)", re.MULTILINE)
@@ -174,10 +189,14 @@ def generate_key(
 ) -> None:
     command = [
         "ssh-keygen",
-        "-t", "ed25519",
-        "-a", "100",
-        "-f", str(key_file),
-        "-C", comment,
+        "-t",
+        "ed25519",
+        "-a",
+        "100",
+        "-f",
+        str(key_file),
+        "-C",
+        comment,
     ]
     info(" ".join(command))
     subprocess.run(command, check=True)
@@ -206,7 +225,9 @@ def build_config_block(
     )
 
 
-def maybe_append_config(config_block: str) -> bool:
+def maybe_append_config(
+    config_block: str,
+) -> bool:
     print(config_block + "\n")
     if not prompt_yes_no(f"Append this block to {CONFIG_FILE}?", default_yes=True):
         info("skipped (block saved to notes file)")
@@ -285,7 +306,10 @@ def write_notes(
     upload_result: str,
     verify_command: str,
 ) -> None:
-    NOTES_DIR.mkdir(mode=0o700, exist_ok=True)
+    NOTES_DIR.mkdir(
+        mode=0o700,
+        exist_ok=True,
+    )
     NOTES_DIR.chmod(0o700)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     public_key = pub_file.read_text().rstrip("\n")
