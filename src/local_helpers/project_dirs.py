@@ -60,7 +60,6 @@ class TargetDirs:
 
     home: Path
     config: Path
-    local_bin: Path
     rules: Path
     ssh: Path
 
@@ -68,7 +67,6 @@ class TargetDirs:
 TARGETS = TargetDirs(
     home=_HOME,
     config=_HOME / ".config",
-    local_bin=_HOME / ".local" / "bin",
     rules=_HOME / ".rules",
     ssh=_HOME / ".ssh",
 )
