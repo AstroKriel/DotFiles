@@ -18,7 +18,7 @@ from local_helpers import log_messages, apply_shell_actions
 from local_helpers import project_dirs
 
 ##
-## === TOOL CONFIG
+## === TOOL REGISTRY
 ##
 
 HOME_DIR = project_dirs.TARGETS.home
@@ -274,7 +274,7 @@ def run(
     )
 
 
-def main():
+def main() -> None:
     ## parse user inputs
     parser = argparse.ArgumentParser(
         description="Symlink subscribed tool config folders and clone needed repos.",

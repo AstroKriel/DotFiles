@@ -99,7 +99,7 @@ def validate_profile(
 ##
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Set up the full dotfiles environment from a system profile.",
     )

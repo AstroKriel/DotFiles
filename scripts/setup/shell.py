@@ -18,7 +18,7 @@ from local_helpers import log_messages, apply_shell_actions
 from local_helpers import project_dirs
 
 ##
-## === SHELL CONFIG
+## === SHELL REGISTRY
 ##
 
 SCRIPT_NAME = Path(__file__).name
@@ -188,7 +188,7 @@ def run(
     )
 
 
-def main():
+def main() -> None:
     ## parse user inputs
     parser = argparse.ArgumentParser(
         description="Symlink shell configuration files.",

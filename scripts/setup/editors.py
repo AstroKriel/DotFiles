@@ -21,7 +21,7 @@ from local_helpers import log_messages, apply_shell_actions
 from local_helpers import project_dirs
 
 ##
-## === EDITOR CONFIG
+## === EDITOR REGISTRY
 ##
 
 SCRIPT_NAME = Path(__file__).name
@@ -31,11 +31,13 @@ CONFIG_DIR = project_dirs.TARGETS.config
 
 _log_message = log_messages.make_logger(SCRIPT_NAME)
 
-_VSCODE_TARGET_DIR = (
-    Path.home() / "Library/Application Support/Code/User" if sys.platform == "darwin" else Path.home() /
-    ".config/Code/User"
-)
-
+if sys.platform == "darwin":
+    ## macOS
+    _vscode_target_dir = Path.home() / "Library/Application Support/Code/User"
+else:
+    ## linux
+    _vscode_target_dir = Path.home() / ".config/Code/User"
+_VSCODE_TARGET_DIR = _vscode_target_dir
 
 class PostSetup(Enum):
     DOOM_SYNC = auto()
@@ -429,7 +431,7 @@ def run(
     )
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate and symlink subscribed editor settings.",
     )

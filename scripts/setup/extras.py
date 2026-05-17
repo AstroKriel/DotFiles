@@ -15,7 +15,7 @@ from local_helpers import load_profiles
 from local_helpers import log_messages, apply_shell_actions
 
 ##
-## === EXTRA CONFIG
+## === EXTRA REGISTRY
 ##
 
 SCRIPT_NAME = Path(__file__).name
