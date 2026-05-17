@@ -41,15 +41,15 @@ class SSHKeyConfig:
     device: str
     today: str = field(init=False)
     comment: str = field(init=False)
-    file_path: Path = field(init=False)
-    pub_file: Path = field(init=False)
+    private_file: Path = field(init=False)
+    public_file: Path = field(init=False)
     record_file: Path = field(init=False)
 
     def __post_init__(self) -> None:
         self.today = datetime.date.today().strftime("%Y-%m-%d")
         self.comment = f"for {self.purpose} from {self.device} created on {self.today}"
-        self.file_path = SSH_CONFIG_DIR / f"id_ed25519_{self.name}"
-        self.pub_file = self.file_path.with_suffix(".pub")
+        self.private_file = SSH_CONFIG_DIR / f"id_ed25519_{self.name}"
+        self.public_file = self.private_file.with_suffix(".pub")
         self.record_file = SSH_RECORDS_DIR / f"{self.name}-{self.today}.txt"
 
 
@@ -85,14 +85,14 @@ def print_summary(
     LOG_MESSAGE(f"Purpose: {ssh_key_config.purpose}")
     LOG_MESSAGE(f"Device: {ssh_key_config.device}")
     LOG_MESSAGE(f"Date: {ssh_key_config.today}")
-    LOG_MESSAGE(f"Key file: {ssh_key_config.file_path}")
+    LOG_MESSAGE(f"Key file: {ssh_key_config.private_file}")
     LOG_MESSAGE(f"Comment: {ssh_key_config.comment}")
     LOG_MESSAGE(f"Notes: {ssh_key_config.record_file}")
 
 
 def generate_key(
     *,
-    file_path: Path,
+    private_file: Path,
     comment: str,
 ) -> None:
     command = [
@@ -102,20 +102,20 @@ def generate_key(
         "-a",
         "100",
         "-f",
-        str(file_path),
+        str(private_file),
         "-C",
         comment,
     ]
     succeeded = apply_shell_actions.run_command(
         args=command,
         logger_fn=LOG_MESSAGE,
-        description=f"generate ed25519 ssh key at {file_path}",
+        description=f"generate ed25519 ssh key at {private_file}",
         capture_output=False,
     )
     if not succeeded:
         FAIL_WITH_MESSAGE("ssh-keygen failed")
-    file_path.chmod(0o600)
-    LOG_MESSAGE(f"Key created at {file_path}")
+    private_file.chmod(0o600)
+    LOG_MESSAGE(f"Key created at {private_file}")
 
 
 def write_key_record(
@@ -128,30 +128,30 @@ def write_key_record(
     )
     SSH_RECORDS_DIR.chmod(0o700)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    public_key = ssh_key_config.pub_file.read_text().rstrip("\n")
+    public_key = ssh_key_config.public_file.read_text().rstrip("\n")
     ssh_key_config.record_file.write_text(
         f"# SSH Key Notes: {ssh_key_config.name}\n"
         f"# Created: {timestamp}\n"
         f"\n"
         f"## Key files\n"
-        f"{ssh_key_config.file_path}   (private; never share)\n"
-        f"{ssh_key_config.pub_file}   (public)\n"
+        f"{ssh_key_config.private_file}   (private; never share)\n"
+        f"{ssh_key_config.public_file}   (public)\n"
         f"\n"
         f"## Public key\n"
         f"{public_key}\n"
         f"\n"
         f"## Keygen command\n"
-        f'ssh-keygen -t ed25519 -a 100 -f "{ssh_key_config.file_path}" -C "{ssh_key_config.comment}"\n'
+        f'ssh-keygen -t ed25519 -a 100 -f "{ssh_key_config.private_file}" -C "{ssh_key_config.comment}"\n'
         f"\n"
         f"## Suggested ~/.ssh/config block (fill in placeholders)\n"
         f"Host <ALIAS>\n"
         f"  HostName <REMOTE_HOST>\n"
         f"  User <REMOTE_USER>\n"
-        f"  IdentityFile {ssh_key_config.file_path}\n"
+        f"  IdentityFile {ssh_key_config.private_file}\n"
         f"  IdentitiesOnly yes\n"
         f"\n"
         f"## Suggested upload command (fill in placeholders)\n"
-        f"ssh-copy-id -i {ssh_key_config.pub_file} <REMOTE_USER>@<REMOTE_HOST>\n"
+        f"ssh-copy-id -i {ssh_key_config.public_file} <REMOTE_USER>@<REMOTE_HOST>\n"
         f"## Or upload the public key manually (e.g. via FreeIPA or GitHub web UI).\n"
         f"\n"
         f"## Verify\n"
@@ -197,9 +197,9 @@ def main() -> None:
     arg_purpose = cast(str, args.purpose)
     arg_device = cast(str, args.device)
     ensure_name_is_valid(name=arg_name)
-    file_path = SSH_CONFIG_DIR / f"id_ed25519_{arg_name}"
-    if file_path.exists():
-        FAIL_WITH_MESSAGE(f"SSH-Key already exists at {file_path}.")
+    private_file = SSH_CONFIG_DIR / f"id_ed25519_{arg_name}"
+    if private_file.exists():
+        FAIL_WITH_MESSAGE(f"SSH-Key already exists at {private_file}.")
     ssh_key_config = SSHKeyConfig(
         name=arg_name,
         purpose=arg_purpose,
@@ -208,11 +208,11 @@ def main() -> None:
     ensure_ssh_dir()
     print_summary(ssh_key_config=ssh_key_config)
     generate_key(
-        file_path=ssh_key_config.file_path,
+        private_file=ssh_key_config.private_file,
         comment=ssh_key_config.comment,
     )
     write_key_record(ssh_key_config=ssh_key_config)
-    LOG_MESSAGE(f"Finished creating {file_path}")
+    LOG_MESSAGE(f"Finished creating {private_file}")
 
 
 ##
