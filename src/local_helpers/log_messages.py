@@ -18,7 +18,7 @@ from local_helpers import project_dirs
 ## === MODULE CONFIG
 ##
 
-LOG_FILE = project_dirs.DIRS.root / "history.log"
+LOG_FILE = project_dirs.LOG_FILE
 _should_write_to_file = True  # dry-runs auto-disable this
 
 ##

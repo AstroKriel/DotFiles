@@ -12,12 +12,17 @@ from pathlib import Path
 ## === PATH ANCHORS
 ##
 
-## src/local_helpers/project_dirs.py -> parent.parent.parent is the repo root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 _HOME = Path.home()
 
 ##
-## === DIRS
+## === FILES
+##
+
+LOG_FILE = _PROJECT_ROOT / "history.log"
+
+##
+## === DIRECTORIES
 ##
 
 
