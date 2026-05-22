@@ -36,6 +36,7 @@ These rules apply when writing scientific prose: manuscripts, papers, theses, an
 | Use mathematics to expose structure | group and label equation terms by the physical process they represent, not by algebraic convenience |
 | Prefer decompositions that expose dynamics | decompose along physically meaningful axes: amplifying vs. diffusing, large-scale vs. small-scale, mean vs. fluctuating |
 | Introduce variables completely | when a symbol appears for the first time, give its name, physical meaning, and a characteristic value or scale in the same sentence or the one immediately following |
+| Lead into equations explicitly | state what the equation shows or what operation it performs; prefer "Using X allows us to Y" or "X shows that" over bare connectors like "gives" |
 | Symbol case is systematic | lower-case for scalars and vectors; upper-case for rank-2 tensors and collections |
 
 ---
