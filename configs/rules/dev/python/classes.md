@@ -6,7 +6,9 @@ How classes, enums, and dataclasses are defined and structured.
 
 ## Classes
 
-Private classes use a leading underscore. They serve as implementation details supporting public classes and are not re-exported:
+| Rule | |
+|---|---|
+| Private classes | leading underscore; implementation details supporting public classes; not re-exported |
 
 ```python
 class _<Name>:
@@ -17,7 +19,10 @@ class _<Name>:
 
 ## Enums
 
-Enums that are used as strings inherit from both `str` and `Enum`. Enums that are pure value holders inherit from `Enum` only:
+| Enum type | Base classes |
+|---|---|
+| Used as strings | `str, Enum` |
+| Pure value holder | `Enum` |
 
 ```python
 class <Name>(str, Enum): ...   # used as strings

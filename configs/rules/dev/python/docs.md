@@ -24,11 +24,11 @@ One-liners have the opening and closing `"""` on the same line. Multi-line docst
 """
 ```
 
-Opening sentence: imperative or declarative voice ("Compute X", "Return X"). Sentence case, ends with a period.
-
-Compound behaviour: join related clauses with `;` rather than starting a new sentence or using "and" / "where". Prefer a semicolon-joined one-liner over a multi-line paragraph unless the second clause genuinely requires its own sentence.
-
-Add a second paragraph only when the opening sentence leaves something genuinely unclear: edge case behaviour, what triggers a raise, a non-obvious side effect. 2-4 sentences max. Never restate what the type annotations already say.
+| Rule | |
+|---|---|
+| Opening sentence | imperative or declarative voice: "Compute X", "Return X"; sentence case; ends with a period |
+| Compound behaviour | join related clauses with `;` rather than starting a new sentence or using "and" or "where"; prefer a semicolon-joined one-liner over a multi-line paragraph unless the second clause genuinely requires its own sentence |
+| Second paragraph | add only when the opening sentence leaves something genuinely unclear: edge case behaviour, what triggers a raise, a non-obvious side effect; 2-4 sentences max; never restate what the type annotations already say |
 
 Add a `Parameters ---` section when there are four or more parameters and their constraints are not clear from the type hints alone. Only document what the annotation does not already say:
 

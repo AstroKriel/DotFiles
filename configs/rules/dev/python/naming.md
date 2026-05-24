@@ -13,11 +13,14 @@ How to name things: files, modules, functions, classes, variables, mathematical 
 | Private modules | leading underscore: `_<verb>_<noun>.py` |
 | Packages | named for the concept they expose: `arrays`, `fields`, `plots` |
 
-A function should only use a leading underscore when it is intended to stay internal to its own module. If a function is called from another module, do not prefix it with an underscore, even if it lives in a private module.
-
 ### Module Growth
 
-A single module promoted to a package keeps its name. Sub-modules highlight the sub-concept using the same verb-noun convention:
+| Rule | |
+|---|---|
+| Name on promotion | a module promoted to a package keeps its original name |
+| Sub-module naming | same verb-noun convention: `<verb>_<noun>.py` |
+| Sub-module responsibility | each sub-module owns one narrow responsibility |
+| Typical size | 50-300 lines; approaching 400 lines is a signal to split |
 
 ```
 <concept>/
@@ -26,8 +29,6 @@ A single module promoted to a package keeps its name. Sub-modules highlight the 
     <verb>_<noun>.py
     ...
 ```
-
-When a concept expands, it becomes a package whose sub-modules each own one narrow responsibility. Typically 50-300 lines; a module approaching 400 lines is a signal to split.
 
 ---
 
@@ -48,7 +49,11 @@ Always use strong, specific verb prefixes. Avoid weak or generic leading words t
 | `resolve_*` | disambiguation between options |
 | `extract_*` | pull data from a larger structure |
 
-In modules, private helpers use a leading underscore: `_<verb>_<noun>()`. In scripts, no underscore prefix is used regardless of whether a helper is internal to the script.
+| Rule | |
+|---|---|
+| Module private helpers | leading underscore: `_<verb>_<noun>()` |
+| Script helpers | no underscore prefix, even when internal to the script |
+| Cross-module calls | no underscore prefix if called from another module, even if the function lives in a private module |
 
 ---
 
@@ -88,14 +93,12 @@ When code, comments, and docstrings use mathematical notation, keep naming align
 | Tensors | upper-case with indices: `<Tensor>_<index><index>` |
 | Code names | preserve the same distinction in variable names where practical |
 
-Use underscores to separate all components of a physics symbol name, mirroring LaTeX subscript notation. This applies to subscript labels, operators, and qualifiers equally.
-
 | Rule | |
 |---|---|
+| Separators | underscores between all components: subscript labels, operators, and qualifiers |
 | Prefer | `<symbol>_<label>`, `<operation>_<quantity>`, `<symbol>_<label>_<qualifier>` |
 | Avoid | `<symbol><label>`, `<operation><quantity>`, `<symbol><label><qualifier>` |
-
-Apply consistently to variable names, comments, docstrings, and user-facing labels; preserve established public labels when they exist.
+| Scope | apply to variable names, comments, docstrings, and user-facing labels; preserve established public labels |
 
 ### Field Identifiers (`field_name`)
 
