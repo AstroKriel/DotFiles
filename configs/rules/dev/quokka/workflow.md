@@ -80,6 +80,14 @@ Pass `--input <file>` to `run` or `buildrun` to override the default input file.
 
 ---
 
+## Per-host environment
+
+When a host needs a non-default toolchain or env vars (e.g. a backport `gcc` for C++20 `<format>`), drop a shell file at `~/.config/quokka/profile.sh` on that host. Pass `--source ~/.config/quokka/profile.sh` to `quokka config/build/buildrun/run` so it gets sourced before each step.
+
+The file is machine-local and never committed. Per-host specifics (which compiler, which modules, which env vars) live in `~/Documents/ProjectNotes/hpcs/<host>/`.
+
+---
+
 ## MHD problem selection
 
 For local MHD development, use targeted low-cost problems rather than a broad sweep.
