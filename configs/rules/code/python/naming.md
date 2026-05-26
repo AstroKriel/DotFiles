@@ -6,7 +6,7 @@ How to name things: files, modules, functions, classes, variables, mathematical 
 
 ## Files and Modules
 
-Filename conventions follow `~/.rules/dev/naming.md`, applied with `_` as the word delimiter.
+Filename conventions follow `~/.rules/code/naming.md`, applied with `_` as the word delimiter.
 
 | Rule | |
 |---|---|

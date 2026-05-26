@@ -8,6 +8,6 @@ Personal conventions for code, writing, and tooling. Files in `~/.rules/` are sy
 
 | Directory | Covers |
 |---|---|
-| `dev/` | Conventions for producing code, scripts, and project-specific development work |
+| `code/` | Conventions for producing code, scripts, and project-specific development work |
 | `writing/` | Conventions for producing markdown documentation, LaTeX, and scientific prose |
 | `workflow/` | Conventions for how to work, regardless of what is being produced |
