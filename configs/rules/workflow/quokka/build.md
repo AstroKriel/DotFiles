@@ -1,4 +1,4 @@
-# Quokka: Local Workflow
+# Quokka: Build and Run
 
 Build, run, and compute-tier workflow for Quokka development.
 
