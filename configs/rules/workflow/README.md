@@ -18,3 +18,4 @@ Conventions for how to work, regardless of what is being produced. Files in this
 | Directory | Covers |
 |---|---|
 | `notes/` | Rules for personal note-taking systems: project context and per-machine setup manuals |
+| `quokka/` | Build, run, and development workflow conventions for the Quokka codebase |
