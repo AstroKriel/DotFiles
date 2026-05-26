@@ -4,16 +4,6 @@ Code style conventions for the Quokka codebase: MHD configuration, testing, and 
 
 ---
 
-## Files
-
-| File | Covers |
-|---|---|
-| `mhd.md` | MHD setup: TOML parameters, EMF schemes, MPI decomposition, resistivity |
-| `testing.md` | Smoke-test set, pass/fail signal, convergence tests as the correctness gate |
-| `diagnostics.md` | Data extraction with `ww-quokka-sims`: commands, flags, two-stage workflow |
-
----
-
 ## Related
 
 | Location | What |

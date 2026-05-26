@@ -4,14 +4,6 @@ Process conventions for working with the Quokka codebase: build, run, and develo
 
 ---
 
-## Files
-
-| File | Covers |
-|---|---|
-| `workflow.md` | Build and run workflow; `quokka` script; two-tier compute model; data pipeline |
-
----
-
 ## Related
 
 | Location | What |
