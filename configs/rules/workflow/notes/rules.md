@@ -45,17 +45,16 @@ When in doubt: a rule answers "what is the convention?" A note answers "what is 
 
 ## Adding a rule
 
-1. Find the right file. Check the `README.md` at each level as the index. Use an existing file if the topic fits; create a new one if nothing covers it.
+1. Find the right file. Read `~/.rules/map.md` for the full index. Use an existing file if the topic fits; create a new one if nothing covers it.
 2. Edit the source under `~/Projects/DotFiles/configs/rules/`.
-3. Update the parent `README.md`: add a row to `## Files` or `## Subdirectories`.
-4. Re-run `uv run -m scripts.setup.rules` from `~/Projects/DotFiles/` to relink.
-5. Commit following `workflow/git.md`.
+3. From `~/Projects/DotFiles/`, run `uv run -m scripts.setup.rules` to relink and `uv run -m scripts.setup.generate_rules_map` to regenerate the map.
+4. Commit following `workflow/git.md`.
 
-**New file:** name it `<concept>.md`; one word or a short phrase naming the subject.
+**New file:** name it `<concept>.md`; one word or a short phrase naming the subject. Open with a title and a one-line description so the map entry is meaningful.
 
-**Promoting a file to a bundle:** when a single file grows to cover sub-topics that each warrant their own section, convert it to a subdirectory. Create a `README.md` inside it as the new index, split the content into per-topic files, and update the parent `README.md` to point to the directory instead of the file.
+**Promoting a file to a bundle:** when a single file grows to cover sub-topics that each warrant their own section, convert it to a subdirectory. Create a `README.md` inside it for any context that applies to the bundle as a whole, and split the content into per-topic files.
 
-**New bundle:** when the concept is large from the start, create the subdirectory directly. Add `README.md` inside it, and add a row to the parent `README.md`. Follow the existing bundle pattern in `code/python/` or `code/quokka/`.
+**New bundle:** when the concept is large from the start, create the subdirectory directly. Add a `README.md` if there is bundle-level context to capture. Follow the existing bundle pattern in `code/python/` or `code/quokka/`.
 
 ---
 
