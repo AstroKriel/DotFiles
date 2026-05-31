@@ -6,16 +6,9 @@ Build, configure, and run Quokka.
 
 ## Build Directories
 
-Each configuration gets its own named build tree under `build/`. Never share a build tree between configurations.
+Each configuration gets its own named build tree under `build/`. Never share a build tree between configurations. Always pass `-DQUOKKA_PYTHON=OFF`; do not create a Python environment inside `quokka/`. All analysis goes through `ww-quokka-sims/`.
 
-Configure with explicit CMake commands. To start fresh, remove the build directory first:
-
-```bash
-rm -rf build/3d-release
-cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
-```
-
-Common configurations:
+Remove the build directory first when starting fresh. Common configurations:
 
 ```bash
 cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
@@ -23,32 +16,7 @@ cmake -S . -B build/3d-debug   -G Ninja -DCMAKE_BUILD_TYPE=Debug   -DAMReX_SPACE
 cmake -S . -B build/3d-asan    -G Ninja -DCMAKE_BUILD_TYPE=Debug   -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF -DENABLE_ASAN=ON
 ```
 
----
-
-## Environment
-
-| Layer | Purpose | Example |
-|---|---|---|
-| CMake build tree | One compiled Quokka configuration: cache, generated build files, and binaries. | `build/3d-release`, `build/3d-debug` |
-| Container or devcontainer | Machine-level toolchain and OS environment. | `.devcontainer/gcc-container` |
-
-| Rule | |
-|---|---|
-| No Python inside Quokka | `QUOKKA_PYTHON` is always disabled (`-DQUOKKA_PYTHON=OFF`). All analysis goes through `ww-quokka-sims/`. |
-| No Python environment in `quokka/` | Do not create one. |
-
-Two compute tiers:
-
-| Tier | Machine | Purpose |
-|---|---|---|
-| Local | Arch AMD laptop | Low-resolution 3D tests for development validation. |
-| HPC | Supercomputer via SSH | Production simulations at full resolution. |
-
-Input `.toml` files are the same across both tiers; resolution and domain size are adjusted via the input file.
-
-Data pipeline: `Quokka (C++) -> HDF5 plotfiles -> ww-quokka-sims/ -> kriel-quokka-mhd`. No analysis or plotting inside `quokka/` itself. See `diagnostics.md`.
-
-When a host needs a non-default toolchain, drop a shell file at `~/.config/quokka/profile.sh` and source it before running CMake or Ninja. Per-host specifics live in `~/Documents/ProjectNotes/hpcs/<host>/`.
+When a host needs a non-default toolchain, source `~/.config/quokka/profile.sh` before running CMake or Ninja. Per-host specifics live in `~/Documents/ProjectNotes/hpcs/<host>/`.
 
 ---
 
@@ -62,15 +30,9 @@ When a host needs a non-default toolchain, drop a shell file at `~/.config/quokk
 | `quokka target` | Print the raw CMake target list. |
 | `quokka clean` | Remove plotfiles, checkpoints, and output files from `tests/`. |
 
-Typical workflow:
+Typical workflow (after configuring a build tree):
 
 ```bash
-cd ~/Projects/quokka
-
-# Configure
-rm -rf build/3d-release
-cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
-
 # Build
 ninja -C build/3d-release <ProblemName>
 
@@ -205,15 +167,15 @@ A clean exit is consistent with a silently broken solver. Always include at leas
 
 | Problem | n_cell | stop_time | What it exercises |
 |---|---|---|---|
+| `AlfvenWaveLinearConvergence` | sweeps `nx` 16..128 | per-resolution | Richardson convergence sweep; the only test with a real correctness signal. |
 | `BrioWuShockTube` | `512x16x16` | `0.15` | 1D MHD Riemann problem; shock-capturing baseline. |
 | `OrszagTang` | `128x128x8` | `1.0` | 2D MHD vortex; constrained-transport stress test. |
-| `MHDBlast` | `64x64x64` + AMR | `0.05` | 3D blast with AMR; exercises divB-preserving prolongation and restriction. |
-| `AlfvenWaveLinearConvergence` | sweeps `nx` 16..128 | per-resolution | Richardson convergence sweep; the only test with a real correctness signal. |
 
 Run each with:
 
 ```bash
-ninja -C build/3d-release <ProblemName> && cd tests && ../build/3d-release/src/problems/<ProblemName>/<ProblemName> ../inputs/<ProblemName>.toml
+ninja -C build/3d-release <ProblemName>
+cd tests && ../build/3d-release/src/problems/<ProblemName>/<ProblemName> ../inputs/<ProblemName>.toml
 ```
 
 ### Convergence tests

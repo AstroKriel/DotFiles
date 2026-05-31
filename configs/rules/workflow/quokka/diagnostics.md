@@ -37,14 +37,12 @@ Activate the virtual environment for `ww-quokka-sims` before running any command
 
 | Command | Purpose |
 |---|---|
-| `quokka-inspect-snapshot` | List all field keys available in a plotfile. |
 | `quokka-plot-profiles` | Midplane 1D profiles of scalar or vector field components along any axis. |
 | `quokka-plot-slices` | Midplane 2D slices of field components; auto-generates MP4 animations over a snapshot series. |
 | `quokka-plot-pdfs` | Probability distribution functions of field components over a snapshot or series. |
 | `quokka-plot-spectra` | Isotropic power spectra of scalar fields. |
 | `quokka-plot-vi-evolution` | Volume-integrated field quantities as a time series. |
 | `quokka-plot-vi-comparison` | Fractional difference in volume-integrated quantities between two simulation runs. |
-| `quokka-compare-snapshots` | Field-by-field numerical comparison between two snapshot directories. |
 
 ---
 
@@ -65,10 +63,9 @@ Activate the virtual environment for `ww-quokka-sims` before running any command
 
 | Field name | What it is |
 |---|---|
-| `density` | Gas density |
-| `velocity` | Velocity vector |
 | `magnetic` | Magnetic field vector |
-| `momentum` | Momentum vector |
+| `velocity` | Velocity vector |
+| `density` | Gas density |
 | `total_energy` | Total energy (internal + kinetic + magnetic) |
 
 Run `quokka-inspect-snapshot` to see the full list for a given run.
