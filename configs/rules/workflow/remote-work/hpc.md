@@ -45,7 +45,7 @@ Directives are scheduler-specific (SLURM uses `#SBATCH`, PBS uses `#PBS`); check
 
 ## Run Directory Layout
 
-Simulations go under `<fast-storage>/<project>/sims/`. Each sim directory is self-contained (no symlinks) so it can be moved or archived without breaking.
+Simulations go under `<fast-storage>/<project>/`. Sim directories are grouped by scientific concept; each sim directory is self-contained (no symlinks) so it can be moved or archived without breaking.
 
 | Concept | Role | Name defined by |
 |---|---|---|
@@ -54,18 +54,22 @@ Simulations go under `<fast-storage>/<project>/sims/`. Each sim directory is sel
 | `<derived>` | Reduced data from analysis tools; what gets transferred locally | Code rules |
 
 ```text
-sims/
-└── <sim-name>/
-    ├── jobs/
-    ├── <sim-inputs>
-    ├── logs/
-    ├── <sim-outputs>/
-    └── <derived>/
+<project>/
+├── <concept>/
+│   └── <sim-name>/
+│       ├── jobs/
+│       ├── <sim-inputs>
+│       ├── logs/
+│       ├── <sim-outputs>/
+│       └── <derived>/
+└── tmp/
 ```
 
 `jobs/` holds one submission script per workflow step (running the simulation, extracting datasets, post-processing, etc).
 
 `logs/` is the unified place to check on a run: job stdout/stderr (scheduler output and error directives point here) and any sim-level diagnostic output. Code rules document what lands here vs. inside `<sim-outputs>/`.
+
+`tmp/` is for short-lived diagnostic work: quick test runs, exploratory plots. Organise by concept and date: `tmp/<concept>/<YYYYMMDD>-<sub-topic>/`.
 
 Each simulation code's rules define the actual directory names for `<sim-inputs>`, `<sim-outputs>`, and `<derived>`, and how its output maps to these concepts.
 
