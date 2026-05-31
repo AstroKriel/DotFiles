@@ -1,6 +1,6 @@
 # Quokka: Data Extraction and Diagnostics
 
-Rules for extracting and working with Quokka simulation output using `ww-quokka-sims`.
+Rules for extracting and working with Quokka simulation output, and for diagnosing failed runs.
 
 ---
 
@@ -8,11 +8,7 @@ Rules for extracting and working with Quokka simulation output using `ww-quokka-
 
 **Package:** `~/Projects/Asgard/sindri/submodules/ww-quokka-sims/`
 
-**Virtual environment:** activate before running any command.
-
-```bash
-source ~/Projects/Asgard/mimir/kriel-quokka-mhd/.venv/bin/activate
-```
+Activate the virtual environment for `ww-quokka-sims` before running any command. The environment path is machine-specific; check ProjectNotes for the current host.
 
 ---
 
@@ -60,8 +56,8 @@ source ~/Projects/Asgard/mimir/kriel-quokka-mhd/.venv/bin/activate
 | `-f` | plot commands | Field name(s) to extract (e.g. `magnetic`, `density`, `velocity`). |
 | `-c` | profile, slice, pdf | Component index for vector fields: `x_0`, `x_1`, `x_2`. |
 | `-a` | profile, slice | Axis along which to profile or slice (e.g. `x_0` for the x-axis). |
-| `--save-data` | plot commands | Write extracted values to JSON alongside the figure. |
-| `-o` | plot commands | Output directory for figures and JSON. |
+| `--save-data` | plot commands | Write extracted values alongside the figure. |
+| `-o` | plot commands | Output directory for figures and data. |
 
 ---
 
@@ -76,3 +72,31 @@ source ~/Projects/Asgard/mimir/kriel-quokka-mhd/.venv/bin/activate
 | `total_energy` | Total energy (internal + kinetic + magnetic) |
 
 Run `quokka-inspect-snapshot` to see the full list for a given run.
+
+---
+
+## Diagnosing a Failed Run
+
+### Triage sequence
+
+**1. Check for output.** Look for plotfiles in `plotfiles/`. If none exist, go to [No output](#no-output).
+
+**2. Plot what ran.** Run diagnostic commands on the HPC, directing output to a new `tmp/` subdirectory:
+
+```bash
+quokka-plot-vi-evolution -o <project>/tmp/vi-check/<YYYYMMDD>-initial
+```
+
+Pull only the figures locally and inspect visually.
+
+**3. Dig deeper if needed.** If the volume-integrated quantities show a problem (blow-up, stall, unexpected drift), run further plot commands targeting the relevant fields. Pull figures only until the cause is clear.
+
+**4. Use logs as secondary context.** Check `logs/` to confirm when the run stopped and whether it was a scheduler kill or a code exit.
+
+### No output
+
+If no plotfiles were written, the run failed before producing anything. Start with `logs/`:
+
+- Config or TOML parsing errors appear at the top of the AMReX output.
+- A missing file or bad path will error immediately on startup.
+- A scheduler kill before the job started leaves no AMReX output at all; check the job accounting.

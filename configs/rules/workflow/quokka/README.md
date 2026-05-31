@@ -1,6 +1,6 @@
 # Quokka: Workflow
 
-Process conventions for working with the Quokka codebase: build, run, MHD setup, testing, and diagnostics.
+Process conventions for working with the Quokka codebase: build, configure, run, and analyse.
 
 ---
 
@@ -8,11 +8,8 @@ Process conventions for working with the Quokka codebase: build, run, MHD setup,
 
 | File | Covers |
 |---|---|
-| `build.md` | Build, run, and compute-tier workflow |
-| `diagnostics.md` | Data extraction and diagnostics using `ww-quokka-sims` |
-| `mhd.md` | MHD simulation setup and configuration |
-| `run-setup.md` | HPC run directory structure and concept mapping |
-| `testing.md` | Validating MHD solver correctness |
+| `build.md` | Build conventions, environment, MHD configuration, HPC run setup, testing |
+| `diagnostics.md` | Data extraction using `ww-quokka-sims`; diagnosing failed runs |
 
 ## Related
 

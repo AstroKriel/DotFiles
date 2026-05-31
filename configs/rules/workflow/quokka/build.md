@@ -1,10 +1,31 @@
 # Quokka: Build and Run
 
-Build, run, and compute-tier workflow for Quokka development.
+Build, configure, and run Quokka.
 
 ---
 
-## Environment layers
+## Build Directories
+
+Each configuration gets its own named build tree under `build/`. Never share a build tree between configurations.
+
+Configure with explicit CMake commands. To start fresh, remove the build directory first:
+
+```bash
+rm -rf build/3d-release
+cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
+```
+
+Common configurations:
+
+```bash
+cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
+cmake -S . -B build/3d-debug   -G Ninja -DCMAKE_BUILD_TYPE=Debug   -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
+cmake -S . -B build/3d-asan    -G Ninja -DCMAKE_BUILD_TYPE=Debug   -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF -DENABLE_ASAN=ON
+```
+
+---
+
+## Environment
 
 | Layer | Purpose | Example |
 |---|---|---|
@@ -13,106 +34,194 @@ Build, run, and compute-tier workflow for Quokka development.
 
 | Rule | |
 |---|---|
-| No Python inside Quokka | `QUOKKA_PYTHON` is always disabled (`-DQUOKKA_PYTHON=OFF`). It is a separate failure surface from the solver and is not needed. All analysis goes through `ww-quokka-sims/`. |
+| No Python inside Quokka | `QUOKKA_PYTHON` is always disabled (`-DQUOKKA_PYTHON=OFF`). All analysis goes through `ww-quokka-sims/`. |
 | No Python environment in `quokka/` | Do not create one. |
 
----
-
-## Two-tier compute model
+Two compute tiers:
 
 | Tier | Machine | Purpose |
 |---|---|---|
 | Local | Arch AMD laptop | Low-resolution 3D tests for development validation. |
 | HPC | Supercomputer via SSH | Production simulations at full resolution. |
 
-Local runs validate solver behaviour cheaply. HPC runs produce data for analysis. Input `.toml` files are the same across both tiers; resolution and domain size are adjusted via the input file.
+Input `.toml` files are the same across both tiers; resolution and domain size are adjusted via the input file.
+
+Data pipeline: `Quokka (C++) -> HDF5 plotfiles -> ww-quokka-sims/ -> kriel-quokka-mhd`. No analysis or plotting inside `quokka/` itself. See `diagnostics.md`.
+
+When a host needs a non-default toolchain, drop a shell file at `~/.config/quokka/profile.sh` and source it before running CMake or Ninja. Per-host specifics live in `~/Documents/ProjectNotes/hpcs/<host>/`.
 
 ---
 
-## Data pipeline
+## The `quokka` Script
 
-```
-Quokka (C++) -> HDF5 plotfiles -> ww-quokka-sims/ -> kriel-quokka-mhd
-```
-
-No analysis or plotting is done inside `quokka/` itself. See `diagnostics.md` for the extraction workflow.
-
----
-
-## The `quokka` script
-
-`scripts/bash/quokka` is a thin wrapper around CMake, Ninja, and CTest.
+`scripts/bash/quokka` is a thin wrapper around CMake, Ninja, and CTest. Use it for listing problems, running tests, and CTest operations. Config and build use raw CMake and Ninja directly.
 
 | Command | What it does |
 |---|---|
-| `quokka config` | Configure a build tree with CMake. |
-| `quokka build` | Compile one or more targets with Ninja. |
-| `quokka run` | Run a built problem executable or a CTest selection. |
-| `quokka buildrun` | Build and then run. |
 | `quokka list` | List problem directories under `src/problems/`. |
-| `quokka target` | Print the raw CMake target list; usually too noisy for daily use. |
+| `quokka target` | Print the raw CMake target list. |
+| `quokka clean` | Remove plotfiles, checkpoints, and output files from `tests/`. |
 
-Preset names:
-
-| Preset | Build dir | Meaning |
-|---|---|---|
-| `3d` | `build/3d-release` | 3D Release |
-| `3d-debug` | `build/3d-debug` | 3D Debug |
-
----
-
-## Typical workflow
+Typical workflow:
 
 ```bash
 cd ~/Projects/quokka
-scripts/bash/quokka config -d 3d --delete -DQUOKKA_PYTHON=OFF
-scripts/bash/quokka build -d 3d <ProblemName>
-scripts/bash/quokka run   -d 3d <ProblemName>
+
+# Configure
+rm -rf build/3d-release
+cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3 -DQUOKKA_PYTHON=OFF
+
+# Build
+ninja -C build/3d-release <ProblemName>
+
+# Run
+cd tests && ../build/3d-release/src/problems/<ProblemName>/<ProblemName> ../inputs/<ProblemName>.toml
 ```
 
-| Step | Effect |
-|---|---|
-| `config -d 3d --delete` | Recreates `build/3d-release` as a fresh 3D Release build tree. |
-| `build -d 3d <ProblemName>` | Compiles the target in `build/3d-release`. |
-| `run -d 3d <ProblemName>` | Runs the executable using `inputs/<ProblemName>.toml` by default. |
+---
 
-Pass `--input <file>` to `run` or `buildrun` to override the default input file.
+## MHD Configuration
+
+### Build requirement
+
+`AMReX_SPACEDIM=3` is mandatory for all MHD problems. A 1D or 2D build silently omits all MHD targets with no warning. Changing `SPACEDIM` requires a fresh build directory.
+
+### TOML parameters
+
+**MHD schemes:**
+
+| Parameter | Values | Notes |
+|---|---|---|
+| `mhd.emf_compute_scheme` | `"FelkerStone2017"`, `"Balsara2025"`, `"Quokka2026"` | How edge-centred EMFs are computed from face-centred fluxes. |
+| `mhd.emf_averaging_scheme` | `"LondrilloDelZanna2004"`, `"Balsara2025"` | How EMFs are averaged at shared edges between adjacent faces. |
+| `mhd.resistivity` | float, default `0` | Physical resistivity; enforces parabolic timestep limit `dt < dx^2 / (2 * eta)`. |
+
+**Reconstruction and integration:**
+
+| Parameter | Values | Notes |
+|---|---|---|
+| `hydro.reconstruction_order` | `2` (PPM), `3` (PPM+), `5` (PPM-EP) | Spatial reconstruction order. |
+| `hydro.rk_integrator_order` | `2` | RK2 time integration. Standard for all MHD runs. |
+| `hydro.use_dual_energy` | `0` | Disable for MHD. |
+
+**Grid and AMR:**
+
+| Parameter | Recommended | Notes |
+|---|---|---|
+| `amr.max_level` | `0` | Single-level for most MHD tests. |
+| `amr.blocking_factor_x` | `16` | See MPI decomposition below. |
+| `amr.max_grid_size` | `128` | See MPI decomposition below. |
+| `do_reflux` | `0` | Disable for single-level runs. |
+| `do_subcycle` | `0` | Disable for single-level runs. |
+
+### EMF scheme reference
+
+| Compute scheme | Stability | Notes |
+|---|---|---|
+| `FelkerStone2017` | Most stable | Safe default; well-validated reference. |
+| `Balsara2025` | Stable | |
+| `Quokka2026` | Least stable | Known to go unstable for the slow wave at high resolution with PPM-EP. |
+
+| Averaging scheme | Notes |
+|---|---|
+| `LondrilloDelZanna2004` | Standard upwind averaging. |
+| `Balsara2025` | |
+
+### MPI decomposition
+
+Setting `amr.blocking_factor_x` to `max(16, nx)` and `amr.max_grid_size` to `nx` forces a single AMReX box at every resolution, making all MPI ranks beyond the first idle with no warning. Always set:
+
+```toml
+amr.blocking_factor_x = 16
+amr.max_grid_size = 128
+```
+
+This allows AMReX to split a 512-cell domain into up to 32 boxes.
+
+### Minimum cell count
+
+The hydro stencil uses `nghost = 4`. A single-box periodic grid below 8 cells per dim has opposite-side ghosts overlapping inside the valid region. Use at least 8 cells per dim under periodic boundary conditions.
+
+### Resistivity
+
+Enable with `mhd.resistivity = <eta>`. The parabolic timestep limit is enforced automatically.
+
+| Rule | |
+|---|---|
+| No resistivity in Richardson convergence tests | `FastWaveConvergence` and `SlowWaveConvergence` abort if `mhd.resistivity != 0`. Resistivity validation uses `AlfvenWaveLinear`. |
+| Reference input | `inputs/AlfvenWaveLinear_resistive.toml` (eta=0.01, grid-aligned, FS17+LD04). |
+| Analytic reference | Amplitude decays as `exp(-gamma*t)` where `gamma = eta*k^2/2`. Velocity lags B by `phi = arctan(gamma/omega_real)`. |
 
 ---
 
-## Per-host environment
+## HPC Run Setup
 
-When a host needs a non-default toolchain or env vars (e.g. a backport `gcc` for C++20 `<format>`), drop a shell file at `~/.config/quokka/profile.sh` on that host. Pass `--source ~/.config/quokka/profile.sh` to `quokka config/build/buildrun/run` so it gets sourced before each step.
+Quokka maps onto the standard project layout from `workflow/remote-work/hpc.md`:
 
-The file is machine-local and never committed. Per-host specifics (which compiler, which modules, which env vars) live in `~/Documents/ProjectNotes/hpcs/<host>/`.
+| Concept | Quokka name | Notes |
+|---|---|---|
+| `<sim-inputs>` | `<problem>.toml` | TOML input file for the problem |
+| `<sim-outputs>` | `plotfiles/` | AMReX HDF5 plotfiles |
+| `<derived>` | `derived/` | Extracted data from `ww-quokka-sims` |
+
+```text
+<concept>/<sim-name>/
+├── jobs/
+│   ├── sim.sh
+│   └── extract.sh
+├── <problem>.toml
+├── logs/
+├── plotfiles/
+└── derived/
+```
+
+Point AMReX output to `plotfiles/` in the run TOML:
+
+```toml
+amr.plot_file = "plotfiles/plt"
+```
+
+AMReX profiling output (`ProfData_*`) lands in the working directory; with `--chdir`/`-d` set to the run directory, this goes to the run root rather than `logs/`.
+
+| Script | Purpose |
+|---|---|
+| `jobs/sim.sh` | Run the Quokka executable with the problem TOML |
+| `jobs/extract.sh` | Run `ww-quokka-sims` diagnostics; output goes to `derived/` |
 
 ---
 
-## MHD problem selection
+## Testing
 
-For local MHD development, use targeted low-cost problems rather than a broad sweep.
+### Pass/fail signal
 
-| Problem | Use |
+| Test type | Signal |
 |---|---|
-| `AlfvenWaveLinear` | First local 3D MHD validation; narrow and cheap. |
-| `AlfvenWaveLinearConvergence` | Convergence-oriented follow-up. |
-| `OrszagTang` | Stronger MHD follow-up after the Alfven wave check. |
-| `MHDBalsaraVortex` | Additional 3D MHD validation. |
+| `*Convergence` problems | Exit code from `quokka::richardson::run()`. Nonzero means measured order of accuracy fell below tolerance. |
+| All other problems | Exit code `0` on clean integration. Internal asserts trip on NaN, negative pressure, FPE, and similar conditions. |
 
----
+A clean exit is consistent with a silently broken solver. Always include at least one `*Convergence` problem when validating a build or code change.
 
-## Build variants
+### MHD smoke-test set
 
-| Need | Use |
-|---|---|
-| Standard 3D Release | `-d 3d` |
-| Standard 3D Debug | `-d 3d-debug` |
-| Multiple 3D variants side by side | Raw CMake with explicit build directories. |
+| Problem | n_cell | stop_time | What it exercises |
+|---|---|---|---|
+| `BrioWuShockTube` | `512x16x16` | `0.15` | 1D MHD Riemann problem; shock-capturing baseline. |
+| `OrszagTang` | `128x128x8` | `1.0` | 2D MHD vortex; constrained-transport stress test. |
+| `MHDBlast` | `64x64x64` + AMR | `0.05` | 3D blast with AMR; exercises divB-preserving prolongation and restriction. |
+| `AlfvenWaveLinearConvergence` | sweeps `nx` 16..128 | per-resolution | Richardson convergence sweep; the only test with a real correctness signal. |
 
-When multiple variants are needed:
+Run each with:
 
 ```bash
-cmake -S . -B build/3d-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DAMReX_SPACEDIM=3
-cmake -S . -B build/3d-debug   -G Ninja -DCMAKE_BUILD_TYPE=Debug   -DAMReX_SPACEDIM=3
-cmake -S . -B build/3d-asan    -G Ninja -DCMAKE_BUILD_TYPE=Debug   -DAMReX_SPACEDIM=3 -DENABLE_ASAN=ON
+ninja -C build/3d-release <ProblemName> && cd tests && ../build/3d-release/src/problems/<ProblemName>/<ProblemName> ../inputs/<ProblemName>.toml
 ```
+
+### Convergence tests
+
+| Rule | |
+|---|---|
+| Correctness gate | The `*Convergence` problems are the only tests that fail the exit code when the solver is wrong. Treat a nonzero exit as a real regression, not flakiness. |
+| Richardson refines nx only | Oblique modes (`num_modes_y != 0` or `num_modes_z != 0`) will not converge under this strategy. The tests abort on nonzero transverse modes. |
+| No resistivity | `FastWaveConvergence` and `SlowWaveConvergence` abort if `mhd.resistivity != 0`. |
+| MPI decomposition | Set `amr.blocking_factor_x = 16` and `amr.max_grid_size = 128`. |
+| TOML overrides | Set `setup.machine_precision_target = 0` to disable early exit and run the full resolution sweep. |
