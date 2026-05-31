@@ -21,7 +21,7 @@ The canonical source is `~/Projects/DotFiles/configs/rules/`. All `.md` files th
 │   └── quokka/     Quokka project bundle
 ├── writing/        conventions for producing text
 └── workflow/       conventions for how to work
-    └── notes/      this bundle
+    └── maintaining-notes/      this bundle
 ```
 
 Each directory has a `README.md` that indexes its contents. The READMEs are the up-to-date map; the tree above shows the current top-level shape.
@@ -45,9 +45,9 @@ When in doubt: a rule answers "what is the convention?" A note answers "what is 
 
 ## Adding a rule
 
-1. Find the right file. Read `~/.rules/map.md` for the full index. Use an existing file if the topic fits; create a new one if nothing covers it.
+1. Find the right file. Read `~/.rules/README.md` for the full index. Use an existing file if the topic fits; create a new one if nothing covers it.
 2. Edit the source under `~/Projects/DotFiles/configs/rules/`.
-3. From `~/Projects/DotFiles/`, run `uv run -m scripts.setup.rules_files` to relink and `uv run -m scripts.setup.rules_map` to regenerate the map.
+3. From `~/Projects/DotFiles/`, run `uv run -m scripts.setup.rules_files` to relink and `uv run -m scripts.setup.rules_index` to regenerate the index.
 4. Commit following `workflow/git.md`.
 
 **New file:** name it `<concept>.md`; one word or a short phrase naming the subject. Open with a title and a one-line description so the map entry is meaningful.

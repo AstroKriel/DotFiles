@@ -4,6 +4,16 @@ Process conventions for working with the Quokka codebase: build, run, MHD setup,
 
 ---
 
+## Files
+
+| File | Covers |
+|---|---|
+| `build.md` | Build, run, and compute-tier workflow |
+| `diagnostics.md` | Data extraction and diagnostics using `ww-quokka-sims` |
+| `mhd.md` | MHD simulation setup and configuration |
+| `run-setup.md` | HPC run directory structure and concept mapping |
+| `testing.md` | Validating MHD solver correctness |
+
 ## Related
 
 | Location | What |

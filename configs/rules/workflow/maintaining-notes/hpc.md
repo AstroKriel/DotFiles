@@ -16,12 +16,12 @@ Location: `ProjectNotes/hpcs/<cluster>/`
 
 ```text
 hpcs/<cluster>/
-├── README.md       cluster name, institution, login hostname, scheduler, storage paths
+├── README.md       cluster name, institution, login hostname, scheduler, storage tier paths, module stack
 ├── log.md          dated entries: outages, queue changes, module updates, workarounds
 └── jobs/           example job scripts and submission patterns
 ```
 
-The `README.md` is the reference sheet: everything needed to start a session from scratch. It should include the login hostname, available partitions, storage paths (home, scratch, project), and any non-standard module load sequences.
+The `README.md` is the reference sheet: everything needed to start a session from scratch. It should include the login hostname, available partitions, and the storage tier paths mapped to the concepts defined in `workflow/remote-work/hpc.md` (`home`, `fast-storage`, `project` where available). Also record any non-standard module load sequences.
 
 ---
 
@@ -30,7 +30,7 @@ The `README.md` is the reference sheet: everything needed to start a session fro
 | Belongs | Does not belong |
 |---|---|
 | Hardware specs and partition layout | Output data from runs |
-| Storage quotas and paths | Project-specific analysis |
+| Storage tier paths and quotas | Project-specific analysis |
 | Scheduler flags and queue behaviour | Dotfiles or shell config (those go in setup repos) |
 | Module load sequences | Binding workflow conventions (promote to `~/.rules/`) |
 | Known outages and maintenance windows | |
