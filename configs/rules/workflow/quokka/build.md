@@ -150,6 +150,8 @@ AMReX profiling output (`ProfData_*`) lands in the working directory; with `--ch
 | `jobs/sim.sh` | Run the Quokka executable with the problem TOML |
 | `jobs/extract.sh` | Run `ww-quokka-sims` diagnostics; output goes to `derived/` |
 
+For short-lived trial runs (testing a parameter, trialing a scheme), use `tmp/` at the project root rather than a full `<concept>/<sim-name>/` directory. See `workflow/remote-work/hpc.md` for the naming convention.
+
 ---
 
 ## Testing
