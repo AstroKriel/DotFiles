@@ -21,17 +21,18 @@ source ~/Projects/Asgard/mimir/kriel-quokka-mhd/.venv/bin/activate
 | Rule | |
 |---|---|
 | Diagnostics first | The diagnostic commands are the primary interface with simulation data; use them before writing any custom extraction code. |
-| Post-analysis from JSON | For comparisons or derived quantities, load the extracted JSON from `derived/`; do not re-read the plotfile. |
+| Plot on the host | When sim data lives on a remote host, run the diagnostic commands there. Copy only the derived outputs back. |
+| Post-analysis from derived | For comparisons or derived quantities, load the extracted file from `derived/`; do not re-read the plotfile. |
 
 **Extraction:**
 
 1. **Inspect.** Call `quokka-inspect-snapshot <plt_dir>` to confirm which field keys are available before running anything else.
-2. **Extract.** Run the appropriate plot command with `--save-data`. This writes a PNG and a JSON to the sim's `derived/` subdirectory. Raw plotfiles stay on the cluster or in `/tmp/`; only derived products are committed.
+2. **Extract.** Run the appropriate plot command with `--save-data`. This writes the figure and data to the sim's `derived/` subdirectory. Raw plotfiles stay on the cluster or in `/tmp/`; only derived products are committed.
 3. **Sanity-check.** Run `quokka-plot-vi-evolution` to check volume-integrated energy and momentum before extracting detailed field data.
 
 **Post-analysis:**
 
-4. **Load the JSON.** Write a problem-specific script that loads the extracted JSON from `derived/`; do not re-read the plotfile.
+4. **Load the data.** Write a problem-specific script that loads the extracted file from `derived/`; do not re-read the plotfile.
 5. **Compare runs.** Use `quokka-compare-snapshots` for field-level regression checks between two snapshot directories.
 
 ---
