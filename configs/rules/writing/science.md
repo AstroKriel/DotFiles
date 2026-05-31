@@ -102,3 +102,5 @@ In contrast, ...
 ```
 
 Place minor qualifications in parentheticals; move extended caveats to footnotes. Keep the main narrative unbroken.
+
+Use parenthetical qualifiers to pin down the scope of a term rather than compound modifiers: prefer "constant (in space and time)" over "spatially and temporally uniform".
