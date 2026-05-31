@@ -8,6 +8,24 @@ How to configure a Python project: package manager, `pyproject.toml`, type check
 
 uv is used for all Python package and project management.
 
+Initialise a new project:
+
+```bash
+uv init <project-name>
+```
+
+Common commands:
+
+| Command | Purpose |
+|---|---|
+| `uv add <package>` | add a runtime dependency |
+| `uv add --group dev <package>` | add to the dev dependency group |
+| `uv sync` | install all dependencies from the lockfile |
+| `uv run <command>` | run a command in the project environment |
+| `uv lock` | regenerate the lockfile |
+
+Always use `uv run` rather than activating the virtual environment manually.
+
 ---
 
 ## pyproject.toml
