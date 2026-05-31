@@ -92,7 +92,7 @@ Pull only the figures locally and inspect visually.
 
 ### No output
 
-If no plotfiles were written, the run failed before producing anything. Start with `logs/`:
+If plotfiles were configured but none were written, the run failed before producing anything. Start with `logs/`:
 
 - Config or TOML parsing errors appear at the top of the AMReX output.
 - A missing file or bad path will error immediately on startup.
