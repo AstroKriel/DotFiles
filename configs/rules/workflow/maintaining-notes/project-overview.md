@@ -65,13 +65,41 @@ threads/
     └── figures/
 ```
 
-When a question is settled, add a `**Resolved:**` line at the top of the thread `README.md` with the conclusion in one sentence. The conclusion lands in the project `README.md` or `log.md`; the thread stays as a record of the reasoning.
+When a question is settled, add a `**Resolved:**` line at the top of the thread `README.md` with the conclusion in one sentence. The conclusion lands in the project `README.md` or `log/`; the thread stays as a record of the reasoning.
 
 Figures not tied to any thread belong in the project repo, not ProjectNotes.
 
 ### notes/
 
 Reference material, background context, and stable expanded content that overflowed from `README.md`. When `README.md` becomes an index, it links to files here.
+
+---
+
+## Structure: Student Supervision
+
+```text
+<student>/
+├── README.md           who, project summary, degree milestones, current status
+├── tasks.md            current tasks for student and supervisor
+├── log/                dated meeting notes; one file per meeting named YYYY-MM-DD.md
+└── notes/              reference material (project description, setup details, etc.)
+```
+
+### README.md
+
+Covers who the student is, what the project is about, the degree milestones (few enough for a masters or honours project to sit inline), and the current status. Updated when something significant changes: a milestone passed, a direction shift, a new result.
+
+### tasks.md
+
+Current transient tasks -- what the student is working on and what the supervisor needs to action. Turns over frequently; completed items are dropped or noted briefly in the next log entry.
+
+### log/
+
+One file per meeting, named `YYYY-MM-DD.md`. Entries can be as detailed as the meeting warrants -- full notes on what was discussed, decided, and agreed. Never edit past entries.
+
+### notes/
+
+Stable reference material: project description, experimental setup, schematics, relevant papers. Things that don't change meeting-to-meeting.
 
 ---
 
