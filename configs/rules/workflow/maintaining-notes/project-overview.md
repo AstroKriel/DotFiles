@@ -18,18 +18,37 @@ Covered by this file:
 
 ---
 
-## Structure
+## Structure: Research Papers
 
-Each project directory should contain:
+Every project starts with just `README.md`. Add files only when the content outgrows a single file. When `README.md` becomes an index, it lists every file it points to.
 
 ```text
 <paper>/
-├── README.md       current status, one-paragraph summary, open questions
-├── log.md          dated entries: decisions, findings, dead ends
-└── refs/           notes on specific papers, datasets, or tools used
+├── README.md         who is involved, current status, open questions
+├── log.md            session trail (add when history starts to accumulate)
+├── threads/          idea explorations (add when ideas need sustained space)
+└── refs/             reference notes (add when reference material builds up)
 ```
 
-The `README.md` is the entry point. It should answer: what is this project, where does it stand, and what are the immediate open questions.
+### README.md
+
+The entry point. Answers: who is involved, where the project stands, what the immediate open questions are. Updated when the project status changes: new results, a direction change, a submission.
+
+When the project grows beyond a single file, `README.md` becomes an index. Each section becomes a link to its own file.
+
+### log.md
+
+A session trail. Append-only; never edit past entries. One date block per session worked, with one to three bullet points summarising what was done and the key outcome.
+
+```
+2026-05-31
+- AlfvenWave convergence at 512: FS17 stable, Quokka2026 blows up above 256 with PPM-EP.
+- Started resistivity sweep; first run segfaulted on missing ghost cell init.
+```
+
+### threads/
+
+One file per question or idea being actively explored. A thread accumulates context, hypotheses, and findings around a single open question. When a question is settled, add a `**Resolved:**` line at the top with the conclusion in one sentence. The conclusion then lands in `README.md` or `log.md`; the thread stays as a record of the reasoning.
 
 ---
 
@@ -39,15 +58,13 @@ The `README.md` is the entry point. It should answer: what is this project, wher
 |---|---|
 | Current status and blockers | Line-by-line code documentation |
 | Key findings and decisions | Raw simulation output |
-| Notes on sources and references | Working convention (promote to `~/.rules/`) |
+| Notes on sources and references | Task lists and to-dos |
 | Reproduction steps for a result | Configuration files (those go in the project repo) |
 
 A fact or finding goes in the log. Once it becomes a binding convention that applies beyond this project, promote it to `~/.rules/`.
 
 ---
 
-## Keeping notes current
+## Concluding a project
 
-Update `README.md` when the project status changes: new results, a direction change, a paper submission, or a supervision milestone. The log is append-only; never edit past entries.
-
-When a project concludes, add a final log entry marking the outcome (accepted, rejected, student graduated, etc.) and archive the directory. Do not delete it.
+Add a final log entry marking the outcome (accepted, rejected, etc.) and archive the directory. Do not delete it.
