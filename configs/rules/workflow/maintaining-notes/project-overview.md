@@ -20,7 +20,10 @@ Covered by this file:
 
 ## Structure: Research Papers
 
-Start with just `README.md`. Add files only as the project grows. The guiding principle: a file splits into a folder of the same name when its content spans multiple domains.
+Start with just `README.md`. Add files only as the project grows. Two guiding principles:
+
+- The entry point for any folder is always `README.md`.
+- A file splits into a folder of the same name when its content spans multiple domains or grows too large.
 
 ```text
 <paper>/
@@ -53,9 +56,18 @@ Active task lists. A single `tasks.md` at the root when tasks are unified; split
 
 ### threads/
 
-One file per open question or idea being actively explored. When a question is settled, add a `**Resolved:**` line at the top with the conclusion in one sentence. The conclusion lands in `README.md` or `log.md`; the thread stays as a record of the reasoning.
+One subfolder per open question or idea being actively explored. Each subfolder contains a `README.md` and, if needed, a `figures/` directory alongside it.
 
-Figures tied to a thread live inside `threads/` alongside that thread file. Figures not tied to a thread belong in the project repo, not ProjectNotes.
+```text
+threads/
+└── <topic>/
+    ├── README.md
+    └── figures/
+```
+
+When a question is settled, add a `**Resolved:**` line at the top of the thread `README.md` with the conclusion in one sentence. The conclusion lands in the project `README.md` or `log.md`; the thread stays as a record of the reasoning.
+
+Figures not tied to any thread belong in the project repo, not ProjectNotes.
 
 ### notes/
 
