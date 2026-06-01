@@ -46,8 +46,8 @@ A session trail. One file per session, named `YYYY-MM-DD.md`. One to three bulle
 
 ```
 log/2026-05-31.md
-- AlfvenWave convergence at 512: FS17 stable, Quokka2026 blows up above 256 with PPM-EP.
-- Started resistivity sweep; first run segfaulted on missing ghost cell init.
+- Ran <analysis> on <dataset>; confirmed <finding>.
+- Fixed <bug>; root cause was <cause>, verified with <test>.
 ```
 
 ### tasks.md / tasks/
@@ -91,11 +91,11 @@ Covers who the student is, what the project is about, the degree milestones (few
 
 ### tasks.md
 
-Current transient tasks -- what the student is working on and what the supervisor needs to action. Turns over frequently; completed items are dropped or noted briefly in the next log entry.
+Current transient tasks: what the student is working on and what the supervisor needs to action. Turns over frequently; completed items are dropped or noted briefly in the next log entry.
 
 ### log/
 
-One file per meeting, named `YYYY-MM-DD.md`. Entries can be as detailed as the meeting warrants -- full notes on what was discussed, decided, and agreed. Never edit past entries.
+One file per meeting, named `YYYY-MM-DD.md`. Entries can be as detailed as the meeting warrants: full notes on what was discussed, decided, and agreed. Never edit past entries.
 
 ### notes/
 
